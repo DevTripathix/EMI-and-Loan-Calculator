@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>EMI &amp; Prepayment Studio</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%230E3A2C'/%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%23E9C76C' stroke-width='1.4'/%3E%3Ctext x='16' y='21.5' font-family='Georgia' font-size='15' fill='%23F7F1E1' text-anchor='middle'%3E%E2%82%B9%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F5F0E3; --card:#FFFDF7; --line:#E5DDC9; --line2:#D6CBB0;
+  --ink:#1F2A22; --ink2:#5B6457; --ink3:#8E937F;
+  --green:#175C43; --green-deep:#0E3A2C; --green-soft:#E5EFE8;
+  --rust:#B04828; --rust-soft:#F7E5DC;
+  --gold:#C98A0A; --gold-soft:#F8EDD3; --gold-line:#E9C76C;
+  --cream:#F7F1E1;
+  --serif:'Fraunces',Georgia,'Times New Roman',serif;
+  --sans:'Instrument Sans','Segoe UI',Verdana,sans-serif;
+  --mono:'Spline Sans Mono','Cascadia Mono',Consolas,monospace;
+  --sh:0 1px 2px rgba(31,42,34,.05),0 6px 18px -10px rgba(31,42,34,.14);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.55 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:var(--gold-soft);color:var(--ink)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.pos{color:var(--green);font-weight:600}
+.neg{color:var(--rust);font-weight:600}
+.hint{font-size:12px;color:var(--ink3);line-height:1.45}
+h1,h2,h3{margin:0}
+
+/* ---------- masthead ---------- */
+.masthead{
+  background:
+    radial-gradient(1100px 420px at -8% -60%, rgba(233,199,108,.14), transparent 62%),
+    repeating-linear-gradient(115deg, transparent 0 7px, rgba(247,241,225,.04) 7px 8px),
+    repeating-linear-gradient(65deg, transparent 0 7px, rgba(247,241,225,.04) 7px 8px),
+    var(--green-deep);
+  color:var(--cream);padding:24px clamp(16px,4vw,44px) 22px;position:relative;overflow:hidden;
+}
+.masthead::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;
+  background:repeating-linear-gradient(90deg,var(--gold-line) 0 26px,transparent 26px 34px);opacity:.85}
+.mast-in{max-width:1240px;margin:0 auto;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.mast-seal{width:58px;height:58px;flex:0 0 auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,.25))}
+.mast-titles{flex:1;min-width:240px}
+.mast-title{font:600 clamp(21px,3vw,29px)/1.12 var(--serif);letter-spacing:.01em}
+.mast-title em{font-style:normal;color:var(--gold-line)}
+.mast-sub{margin-top:5px;font-size:13px;color:rgba(247,241,225,.72);letter-spacing:.02em}
+.mast-chip{display:flex;align-items:center;gap:9px;border:1px solid rgba(247,241,225,.28);
+  border-radius:999px;padding:9px 18px;font-size:13px;color:var(--cream);background:rgba(0,0,0,.18);
+  flex-wrap:wrap;max-width:360px}
+.mast-chip .dot{width:8px;height:8px;border-radius:50%;background:var(--gold-line);flex:0 0 auto;
+  box-shadow:0 0 0 3px rgba(233,199,108,.22)}
+.mast-chip b{color:var(--gold-line);font-family:var(--mono);font-weight:600}
+
+/* ---------- KPI band (full width) ---------- */
+.kpi-band{max-width:1240px;margin:18px auto 0;padding:0 clamp(14px,3vw,36px)}
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.kpi{background:var(--card);border:1px solid var(--line);border-top:3px double var(--line2);
+  border-radius:10px;box-shadow:var(--sh);padding:13px 15px 12px;min-width:0}
+.kpi .l{font:600 10.5px/1.25 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
+.kpi .n{font:600 clamp(18px,1.65vw,25px)/1.2 var(--serif);margin-top:7px;letter-spacing:.01em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi .s{font-size:11.5px;color:var(--ink2);margin-top:4px;line-height:1.4;min-height:2.7em}
+.kpi .s b{font-weight:600}
+.kpi.good .n{color:var(--green)}
+.kpi.cost .n{color:var(--rust)}
+.kpi.hero{background:linear-gradient(140deg,#0E3A2C 0%,#155040 100%);border-color:#0E3A2C;border-top:3px double rgba(233,199,108,.5)}
+.kpi.hero .l{color:rgba(247,241,225,.62)}
+.kpi.hero .n{color:var(--cream)}
+.kpi.hero .s{color:rgba(247,241,225,.78)}
+.kpi.hero .s b.pos{color:var(--gold-line)}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1240px;margin:18px auto 0;padding:0 clamp(14px,3vw,36px) 46px;
+  display:grid;grid-template-columns:340px minmax(0,1fr);gap:20px;align-items:start}
+.rail{display:grid;gap:18px;align-content:start;
+  position:sticky;top:12px;max-height:calc(100vh - 24px);
+  overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;
+  padding:2px 6px 12px 2px}
+.rail::-webkit-scrollbar{width:6px}
+.rail::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
+.rail::-webkit-scrollbar-track{background:transparent}
+.content{display:grid;gap:18px;min-width:0}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;
+  box-shadow:var(--sh);padding:18px 20px;min-width:0}
+.card-title{display:flex;align-items:baseline;gap:8px;font:600 11px/1 var(--mono);
+  letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin-bottom:14px}
+.card-title::after{content:"";flex:1;height:1px;background:var(--line2);transform:translateY(-2px)}
+.card-title .t{color:var(--ink);letter-spacing:.16em}
+.card-sub{font-size:12.5px;color:var(--ink2);margin:-8px 0 12px}
+
+/* ---------- fields ---------- */
+.field{margin-bottom:14px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:11px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink3);margin-bottom:5px}
+.field input[type=number],.field input[type=text],.field input[type=month]{
+  width:100%;border:1px solid var(--line2);border-radius:7px;background:#FFFEFA;
+  padding:8px 11px;font:500 14.5px var(--mono);color:var(--ink);outline:none;min-width:0;
+  transition:border-color .15s, box-shadow .15s}
+.field input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(23,92,67,.12)}
+.field input:disabled{opacity:.55;cursor:not-allowed}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:22px;background:transparent;margin:2px 0 0}
+input[type=range]::-webkit-slider-runnable-track{height:3px;border-radius:2px;background:linear-gradient(90deg,var(--green) var(--p,0%),var(--line2) var(--p,0%))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--green);border:3px solid var(--cream);box-shadow:0 1px 4px rgba(0,0,0,.3);margin-top:-6.5px;cursor:grab}
+input[type=range]::-moz-range-track{height:3px;border-radius:2px;background:var(--line2)}
+input[type=range]::-moz-range-progress{height:3px;border-radius:2px;background:var(--green)}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--green);border:3px solid var(--cream);box-shadow:0 1px 4px rgba(0,0,0,.3);cursor:grab}
+.f-sub{display:flex;justify-content:space-between;align-items:baseline;margin-top:3px;font-size:12px;color:var(--ink2);gap:8px}
+.f-sub .num{color:var(--ink3);font-size:11.5px;text-align:right}
+.amount-box{position:relative}
+.amount-box .pfx{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--ink3);font:500 14px var(--mono);pointer-events:none}
+.amount-box input{padding-left:28px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{border:1px solid var(--line2);background:#FFFEFA;border-radius:999px;padding:3px 11px;
+  font:500 11.5px var(--mono);color:var(--ink2);cursor:pointer;transition:all .15s}
+.chip:hover{border-color:var(--green);color:var(--green)}
+.chip.on{background:var(--green);border-color:var(--green);color:var(--cream)}
+
+/* ---------- segmented ---------- */
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:#F0EADA;border:1px solid var(--line);
+  border-radius:8px;padding:3px;gap:3px}
+.seg button{border:0;background:transparent;border-radius:6px;padding:7px 6px;cursor:pointer;
+  font:600 12.5px var(--sans);color:var(--ink2);transition:all .15s;white-space:nowrap}
+.seg button:hover{color:var(--ink)}
+.seg button.on{background:var(--green-deep);color:var(--cream);box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.seg.compact{grid-auto-flow:row;grid-auto-columns:1fr}
+.seg button:focus-visible,.btn:focus-visible,.chip:focus-visible,button:focus-visible{
+  outline:2px dashed var(--gold);outline-offset:2px}
+
+/* ---------- toggles ---------- */
+.switch-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;cursor:pointer}
+.switch{position:relative;width:38px;height:22px;flex:0 0 auto;margin-top:1px}
+.switch input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer;z-index:2}
+.switch .tr{position:absolute;inset:0;border-radius:999px;background:var(--line2);transition:background .2s}
+.switch .tr::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;
+  background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .2s}
+.switch input:checked + .tr{background:var(--green)}
+.switch input:checked + .tr::after{left:19px}
+.switch-row .st{flex:1;font-size:13.5px;font-weight:600;color:var(--ink)}
+.switch-row .sd{font-size:12px;color:var(--ink3)}
+.subfields{display:grid;gap:8px;margin:2px 0 14px 48px}
+.subfields .duo{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* ---------- lumpsum rows ---------- */
+.lump-list{display:grid;gap:8px;margin-top:6px}
+.lump-row{display:grid;grid-template-columns:minmax(0,1fr) 80px 22px;gap:8px;align-items:center}
+.lump-row input{width:100%;border:1px solid var(--line2);border-radius:7px;background:#FFFEFA;
+  padding:7px 10px;font:500 13px var(--mono);color:var(--ink);outline:none;min-width:0}
+.lump-row input:focus{border-color:var(--green)}
+.lump-hint{font-size:11px;color:var(--ink3);grid-column:1/3;margin-top:-4px}
+.btn-x{border:1px solid var(--line2);background:transparent;color:var(--ink3);width:22px;height:22px;
+  border-radius:6px;cursor:pointer;font-size:14px;line-height:1;padding:0;transition:all .15s}
+.btn-x:hover{color:var(--rust);border-color:var(--rust)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--green-deep);
+  background:var(--green-deep);color:var(--cream);border-radius:8px;padding:8px 14px;cursor:pointer;
+  font:600 13px var(--sans);transition:all .15s}
+.btn:hover{background:var(--green);border-color:var(--green);transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--green-deep);border-color:var(--line2)}
+.btn.ghost:hover{background:var(--green-soft);border-color:var(--green)}
+.btn.sm{padding:5px 10px;font-size:12px;border-radius:7px}
+.btn.block{width:100%;margin-top:12px}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+
+/* ---------- two-col ---------- */
+.grid2{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:18px;align-items:stretch}
+.grid2.eq{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+
+/* ---------- charts ---------- */
+.chart-box{position:relative;min-height:200px}
+.chart-box svg{display:block;width:100%;height:auto}
+.chart-box svg text{user-select:none}
+#chYr rect{transition:opacity .12s}
+#chYr rect:hover{opacity:.72}
+.tt{position:absolute;pointer-events:none;background:var(--green-deep);color:var(--cream);
+  border-radius:8px;padding:8px 11px;font:12px/1.55 var(--sans);box-shadow:0 6px 16px rgba(0,0,0,.28);
+  opacity:0;transition:opacity .12s;z-index:5;white-space:normal;width:max-content;max-width:280px}
+.tt .trow{display:flex;justify-content:space-between;gap:14px;align-items:baseline}
+.tt .trow .k{color:rgba(247,241,225,.7);font-size:11px}
+.tt .trow .v{font-family:var(--mono);font-weight:600}
+.tt .tt-date{font:600 11.5px var(--mono);color:var(--gold-line);letter-spacing:.06em;margin-bottom:3px;text-transform:uppercase}
+.xhair{position:absolute;top:5%;bottom:10%;width:1px;background:rgba(31,42,34,.35);pointer-events:none;
+  opacity:0;transition:opacity .12s;z-index:4}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px;font-size:12px;color:var(--ink2)}
+.lg-item{display:inline-flex;align-items:center;gap:6px}
+.sw{width:18px;height:3px;border-radius:2px;display:inline-block;flex:0 0 auto}
+.sw.dash{background:repeating-linear-gradient(90deg,var(--c,#888) 0 5px,transparent 5px 8px);height:2.5px}
+.tick{width:3px;height:12px;background:var(--gold);border-radius:1px;display:inline-block;flex:0 0 auto}
+
+/* ---------- scrollable table wrappers ---------- */
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.tbl-wrap::-webkit-scrollbar{height:6px}
+.tbl-wrap::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
+
+/* ---------- compare (RT vs RE) ---------- */
+table.compare{width:100%;min-width:430px;border-collapse:collapse;font-size:12.5px}
+table.compare th{font:600 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);
+  text-align:right;padding:7px 8px 9px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.compare th:first-child{text-align:left}
+table.compare td{text-align:right;padding:7px 8px;border-bottom:1px solid #F0EADA;font-family:var(--mono);white-space:nowrap}
+table.compare td:first-child{text-align:left;font-family:var(--sans);color:var(--ink2);font-size:12px}
+table.compare td.k{color:var(--ink3);font-size:12px}
+table.compare tr:last-child td{border-bottom:0}
+table.compare td b{font-weight:600}
+table.compare.mode-rt th:nth-child(3),table.compare.mode-rt td:nth-child(3),
+table.compare.mode-re th:nth-child(4),table.compare.mode-re td:nth-child(4){background:var(--green-soft)}
+table.compare.mode-rt th:nth-child(3),table.compare.mode-re th:nth-child(4){color:var(--green-deep)}
+
+/* ---------- scenario lab ---------- */
+table.data{width:100%;min-width:860px;border-collapse:collapse;font-size:13px}
+table.data th{font:600 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);
+  text-align:right;padding:8px 10px;border-bottom:1px solid var(--line2);white-space:nowrap}
+table.data th:first-child,table.data td:first-child{text-align:left}
+table.data td{text-align:right;padding:9px 10px;border-bottom:1px solid #F0EADA;font-family:var(--mono);white-space:nowrap}
+table.data td:first-child{font-family:var(--sans);white-space:normal;min-width:150px}
+table.data tr:last-child td{border-bottom:0}
+table.data tr.act{background:var(--green-soft)}
+table.data tr.act td:first-child{font-weight:600;color:var(--green-deep)}
+table.data tr.inact td{opacity:.45}
+table.data tr:not(.inact):hover td{background:#FBF8EF}
+table.data .nm{font-weight:600;font-size:13.5px}
+table.data .sd{display:block;font-size:11px;color:var(--ink3);font-weight:400}
+
+/* ---------- insights ---------- */
+.insights{display:grid;gap:9px;margin:0;padding:0;list-style:none}
+.insights li{position:relative;padding-left:24px;font-size:13.5px;color:var(--ink);line-height:1.55}
+.insights li::before{content:"";position:absolute;left:2px;top:8px;width:9px;height:9px;
+  background:var(--gold);border-radius:2px;transform:rotate(45deg)}
+.insights b{font-family:var(--mono);font-weight:600}
+
+/* ---------- schedule ---------- */
+.sched-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.sched-scroll{max-height:460px;overflow:auto;border:1px solid var(--line);border-radius:8px;
+  -webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.sched-scroll::-webkit-scrollbar{height:8px;width:8px}
+.sched-scroll::-webkit-scrollbar-thumb{background:var(--line2);border-radius:4px}
+.sched-scroll table{border-collapse:collapse;font-size:12.5px;min-width:780px;width:100%}
+.sched-scroll th{position:sticky;top:0;background:#F3EDDD;font:600 10.5px var(--mono);letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink3);text-align:right;padding:8px 12px;border-bottom:1px solid var(--line2);
+  z-index:2;white-space:nowrap}
+.sched-scroll th:first-child,.sched-scroll td:first-child{text-align:left}
+.sched-scroll td{text-align:right;padding:6.5px 12px;border-bottom:1px solid #F2ECDC;font-family:var(--mono);
+  color:var(--ink);white-space:nowrap}
+.sched-scroll tbody tr:hover td{background:#FBF8EF}
+.sched-scroll tr.pre td{background:var(--gold-soft)}
+.sched-scroll tr.pre td:first-child{box-shadow:inset 3px 0 0 var(--gold)}
+.sched-scroll tr.end td{background:var(--green-soft);font-weight:600;color:var(--green-deep);border-top:2px solid var(--green)}
+.sched-scroll .tag{display:inline-block;background:var(--gold);color:#3B2A02;font:600 9.5px var(--mono);
+  padding:1px 6px;border-radius:4px;letter-spacing:.06em;vertical-align:1px;margin-left:6px}
+
+/* ---------- footer ---------- */
+.foot{max-width:1240px;margin:0 auto;padding:0 clamp(14px,3vw,36px) 40px;font-size:12px;color:var(--ink3);line-height:1.7}
+.foot .rule{border-top:1px solid var(--line2);padding-top:16px;margin-top:4px}
+
+@media (max-width:1020px){
+  .kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .kpi .s{min-height:0}
+  .wrap{grid-template-columns:1fr}
+  .rail{position:static;max-height:none;overflow:visible;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));padding:0}
+  .grid2,.grid2.eq{grid-template-columns:1fr}
+}
+@media (max-width:680px){
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rail{grid-template-columns:1fr}
+  .mast-in{flex-direction:column;align-items:flex-start;gap:12px}
+  .subfields{margin-left:0}
+  .card{padding:16px 14px}
+}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="mast-in">
+    <svg class="mast-seal" viewBox="0 0 64 64" aria-hidden="true">
+      <circle cx="32" cy="32" r="30" fill="none" stroke="#E9C76C" stroke-width="1.6"/>
+      <circle cx="32" cy="32" r="25.5" fill="none" stroke="#E9C76C" stroke-width=".7" opacity=".7"/>
+      <g stroke="#E9C76C" stroke-width="1.1" opacity=".85">
+        <line x1="32" y1="2"  x2="32" y2="9"/> <line x1="32" y1="55" x2="32" y2="62"/>
+        <line x1="2"  y1="32" x2="9"  y2="32"/> <line x1="55" y1="32" x2="62" y2="32"/>
+        <line x1="10.8" y1="10.8" x2="15.7" y2="15.7"/> <line x1="48.3" y1="48.3" x2="53.2" y2="53.2"/>
+        <line x1="53.2" y1="10.8" x2="48.3" y2="15.7"/> <line x1="15.7" y1="48.3" x2="10.8" y2="53.2"/>
+      </g>
+      <text x="32" y="43" font-family="Fraunces, Georgia, serif" font-weight="600" font-size="30" fill="#F7F1E1" text-anchor="middle">₹</text>
+    </svg>
+    <div class="mast-titles">
+      <h1 class="mast-title">EMI &amp; Prepayment <em>Studio</em></h1>
+      <p class="mast-sub">Plan your home loan — EMI, lumpsums, extra payments, step-ups, and how fast you can close it.</p>
+    </div>
+    <div class="mast-chip" id="mastChip"><span class="dot"></span><span id="mastChipText">—</span></div>
+  </div>
+</header>
+
+<section class="kpi-band" aria-label="Key results">
+  <div class="kpis" id="kpis"></div>
+</section>
+
+<main class="wrap">
+  <!-- ============ LEFT RAIL ============ -->
+  <aside class="rail">
+
+    <section class="card">
+      <h2 class="card-title"><span class="t">Loan basics</span></h2>
+
+      <div class="field">
+        <label for="P">Loan amount</label>
+        <div class="amount-box"><span class="pfx">₹</span><input type="number" id="P" inputmode="numeric" step="50000"></div>
+        <input type="range" id="Pr" min="500000" max="20000000" step="50000" aria-label="Loan amount slider">
+        <div class="f-sub"><span id="Psub">—</span></div>
+        <div class="chips" id="Pchips">
+          <button class="chip" data-v="5000000">50 L</button>
+          <button class="chip" data-v="7500000">75 L</button>
+          <button class="chip" data-v="9000000">90 L</button>
+          <button class="chip" data-v="10000000">1 Cr</button>
+          <button class="chip" data-v="12500000">1.25 Cr</button>
+          <button class="chip" data-v="15000000">1.5 Cr</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="rate">Interest rate (% p.a.)</label>
+        <input type="number" id="rate" inputmode="decimal" step="0.05" min="0" max="30">
+        <input type="range" id="rateR" min="4" max="14" step="0.05" aria-label="Interest rate slider">
+        <div class="f-sub"><span id="rateSub">—</span></div>
+      </div>
+
+      <div class="field">
+        <label for="years">Tenure</label>
+        <input type="number" id="years" inputmode="decimal" min="1" max="40" step="0.5">
+        <input type="range" id="yearsR" min="1" max="30" step="1" aria-label="Tenure slider">
+        <div class="f-sub"><span id="yearsSub">—</span></div>
+      </div>
+
+      <div class="field">
+        <label for="start">First EMI month</label>
+        <input type="month" id="start">
+        <div class="hint" style="margin-top:4px">EMI #1 is paid in this month; EMIs are monthly after that.</div>
+      </div>
+
+      <button class="btn ghost sm block" id="resetBtn" title="Restore the defaults from your sheet">↺ Reset to sheet defaults</button>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title"><span class="t">Prepayment plan</span></h2>
+
+      <div class="field">
+        <label>How prepayments are applied</label>
+        <div class="seg compact" id="modeSeg" role="radiogroup" aria-label="Prepayment effect">
+          <button data-mode="rt" class="on" role="radio" aria-checked="true">Reduce tenure</button>
+          <button data-mode="re" role="radio" aria-checked="false">Reduce EMI</button>
+        </div>
+        <div class="hint" id="modeHint" style="margin-top:7px"></div>
+      </div>
+
+      <div style="border-top:1px solid var(--line);margin:4px 0 12px"></div>
+
+      <label class="switch-row" for="extraOn">
+        <span class="switch"><input type="checkbox" id="extraOn"><span class="tr"></span></span>
+        <span><span class="st">Extra every month</span><br><span class="sd">A fixed top-up paid with each EMI</span></span>
+      </label>
+      <div class="subfields">
+        <div class="field" style="margin:0"><label for="extraAmt">Extra amount (₹ / month)</label>
+          <input type="number" id="extraAmt" inputmode="numeric" step="1000"></div>
+        <div class="field" style="margin:0"><label for="extraFrom">From EMI #</label>
+          <input type="number" id="extraFrom" inputmode="numeric" min="1"><span class="hint" id="extraFromHint"></span></div>
+      </div>
+
+      <label class="switch-row" for="annualOn">
+        <span class="switch"><input type="checkbox" id="annualOn" checked><span class="tr"></span></span>
+        <span><span class="st">Year-end prepayment</span><br><span class="sd">A lumpsum with the last EMI of each year</span></span>
+      </label>
+      <div class="subfields">
+        <div class="duo">
+          <div class="field" style="margin:0"><label for="annualAmt">Amount (₹ / year)</label>
+            <input type="number" id="annualAmt" inputmode="numeric" step="1000"></div>
+          <div class="field" style="margin:0"><label for="annualStart">Starting year</label>
+            <input type="number" id="annualStart" inputmode="numeric" min="1" value="1"></div>
+        </div>
+        <div class="hint">Paid with the 12th EMI of each year (EMIs 12, 24, 36 …).</div>
+      </div>
+
+      <label class="switch-row">
+        <span class="switch" style="visibility:hidden"><input type="checkbox"><span class="tr"></span></span>
+        <span><span class="st">One-time lumpsums</span><br><span class="sd">Any month — bonus, maturity, sale of an asset</span></span>
+      </label>
+      <div class="lump-list" id="lumpList"></div>
+      <button class="btn ghost sm" id="addLump" style="margin-top:9px">+ Add lumpsum</button>
+
+      <div style="border-top:1px solid var(--line);margin:14px 0 12px"></div>
+
+      <div class="field">
+        <label>Annual EMI step-up</label>
+        <div class="seg" id="stepSeg" role="radiogroup" aria-label="EMI step-up">
+          <button data-step="none" class="on" role="radio" aria-checked="true">None</button>
+          <button data-step="5" role="radio" aria-checked="false">+5%</button>
+          <button data-step="10" role="radio" aria-checked="false">+10%</button>
+          <button data-step="custom" role="radio" aria-checked="false">Custom</button>
+        </div>
+        <div class="subfields" id="stepFields" style="margin-top:10px;display:none">
+          <div class="duo">
+            <div class="field" style="margin:0"><label for="stepPct">Increase (% / year)</label>
+              <input type="number" id="stepPct" inputmode="decimal" step="0.5" min="0.5" max="30" value="5"></div>
+            <div class="field" style="margin:0"><label for="stepStart">First step-up in year</label>
+              <input type="number" id="stepStart" inputmode="numeric" min="1" value="2"></div>
+          </div>
+          <div class="hint">Your EMI grows each anniversary (applies to the EMI itself).</div>
+        </div>
+      </div>
+    </section>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <section class="content">
+
+    <div class="grid2">
+      <div class="card">
+        <h2 class="card-title"><span class="t">Outstanding balance</span></h2>
+        <p class="card-sub">How fast the principal falls — with vs without your plan.</p>
+        <div class="chart-box" id="chBal" aria-label="Outstanding balance chart"></div>
+        <div class="legend" id="lgBal"></div>
+      </div>
+      <div class="card">
+        <h2 class="card-title"><span class="t">Reduce term vs reduce EMI</span></h2>
+        <p class="card-sub">Same plan, the two ways a lender can apply prepayments.</p>
+        <div class="tbl-wrap" id="rtre"></div>
+      </div>
+    </div>
+
+    <div class="grid2 eq">
+      <div class="card">
+        <h2 class="card-title"><span class="t">Cumulative interest</span></h2>
+        <p class="card-sub">The shaded gap is the interest your plan eliminates.</p>
+        <div class="chart-box" id="chInt" aria-label="Cumulative interest chart"></div>
+        <div class="legend" id="lgInt"></div>
+      </div>
+      <div class="card">
+        <h2 class="card-title"><span class="t">Where each year's payment goes</span></h2>
+        <p class="card-sub">Interest vs EMI principal vs prepayments, year by year.</p>
+        <div class="chart-box" id="chYr" aria-label="Yearly payment split chart"></div>
+        <div class="legend" id="lgYr"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title"><span class="t">Scenario lab</span></h2>
+      <p class="card-sub" id="scenSub">Each strategy on its own vs everything combined — click Apply to load one.</p>
+      <div class="tbl-wrap"><table class="data" id="scenTbl"></table></div>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title"><span class="t">Reading the numbers</span></h2>
+      <ul class="insights" id="insights"></ul>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title"><span class="t">Amortization schedule</span></h2>
+      <div class="sched-head">
+        <div class="seg" id="schedSeg" style="grid-auto-columns:auto;width:auto" role="radiogroup" aria-label="Schedule view">
+          <button data-v="yr" class="on">Yearly</button>
+          <button data-v="mo">Monthly</button>
+        </div>
+        <button class="btn ghost sm" id="csvBtn">⬇ Export CSV (monthly)</button>
+        <span class="hint" id="schedNote"></span>
+      </div>
+      <div class="sched-scroll" id="sched"></div>
+    </div>
+
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="rule">
+    EMI = P·r·(1+r)<sup>n</sup> / ((1+r)<sup>n</sup> − 1) on monthly rest, rounded to the nearest rupee.
+    <b>Reduce tenure</b> keeps the EMI fixed so every prepayment shortens the loan.
+    <b>Reduce EMI</b> recalculates your EMI after each prepayment to hold the original close date — ongoing extras can still close it earlier.
+    Extra-monthly and step-up payments are treated as prepayments toward principal. No processing fees, insurance or charges are modelled.
+    Defaults mirror your sheet: ₹75&nbsp;L at 7.8% for 29 years with a ₹59,196 year-end prepayment (your schedule's actual 0.65%/month rate — the Setup tab's “8%” label is rounded).
+  </div>
+</footer>
+
+<script>
+"use strict";
+/* ================= helpers ================= */
+const $  = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const clamp = (v,a,b) => Math.min(b, Math.max(a, v));
+const r2 = v => Math.round(v * 100) / 100;
+const MN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const fmtINR = new Intl.NumberFormat('en-IN', {maximumFractionDigits:0});
+const money = v => '₹' + fmtINR.format(Math.round(v));
+function short(v){
+  const a = Math.abs(v), s = v < 0 ? '-' : '';
+  if (a >= 1e7) return s + '₹' + (a/1e7).toLocaleString('en-IN',{maximumFractionDigits:2}) + ' Cr';
+  if (a >= 1e5) return s + '₹' + (a/1e5).toLocaleString('en-IN',{maximumFractionDigits:1}) + ' L';
+  if (a >= 1e3) return s + '₹' + (a/1e3).toLocaleString('en-IN',{maximumFractionDigits:1}) + ' k';
+  return s + '₹' + Math.round(a);
+}
+function addMonths(d, k){
+  const dd = new Date(d.getFullYear(), d.getMonth(), 1);
+  return new Date(dd.getFullYear(), dd.getMonth() + k, 1);
+}
+const mLabel = d => MN[d.getMonth()] + ' ' + d.getFullYear();
+const iso = d => d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+/* date of EMI #m when EMI #1 falls in `start` month */
+const emiDate = (start, m) => addMonths(start, m - 1);
+function fmtDur(m){
+  const y = Math.floor(m/12), mo = m % 12;
+  if (y && mo) return y + 'y ' + mo + 'm';
+  if (y) return y + 'y';
+  return mo + 'm';
+}
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ================= engine ================= */
+function amortize(P, r, n){
+  if (n <= 0) return P;
+  if (r <= 0) return P / n;
+  const f = Math.pow(1 + r, n);
+  return P * r * f / (f - 1);
+}
+function simulate(cfg){
+  const r = cfg.rate / 1200, n = cfg.months;
+  const startEmi = amortize(cfg.P, r, n);
+  let emi = startEmi, bal = cfg.P;
+  const rows = [];
+  let m = 0, totInt = 0, totPaid = 0, totExtra = 0;
+  const stepOn = cfg.stepUp.on && cfg.stepUp.pct > 0;
+  const maxM = n + 360;
+  while (bal > 0.005 && m < maxM){
+    m++;
+    if (stepOn && (m-1) % 12 === 0 && Math.ceil(m/12) >= cfg.stepUp.startYear){
+      emi *= (1 + cfg.stepUp.pct / 100);
+    }
+    const interest = bal * r;
+    let pay = Math.min(emi, bal + interest);
+    let principal = pay - interest;
+    let extra = 0;
+    if (cfg.extra.on && m >= cfg.extra.from) extra += cfg.extra.amount;
+    if (cfg.annual.on && m % 12 === 0 && m/12 >= cfg.annual.startYear) extra += cfg.annual.amount;
+    for (const L of cfg.lumps) if (L.month === m) extra += L.amount;
+    const headroom = Math.max(0, bal - principal);
+    if (extra > headroom) extra = headroom;
+    bal -= principal + extra;
+    if (cfg.mode === 're' && extra > 0 && bal > 0.005 && n - m >= 1){
+      const ne = amortize(bal, r, n - m);
+      if (ne < emi) emi = ne;
+    }
+    totInt += interest; totPaid += pay + extra; totExtra += extra;
+    rows.push({m, emi:pay, level:emi, extra, interest, principal, balance:Math.max(0, bal)});
+  }
+  const levels = rows.map(x => x.level);
+  return {
+    rows, months:m, totInt, totPaid, totExtra, startEmi,
+    minLevel: levels.length ? Math.min.apply(null, levels) : startEmi,
+    maxLevel: levels.length ? Math.max.apply(null, levels) : startEmi,
+    lastLevel: levels.length ? levels[levels.length-1] : startEmi
+  };
+}
+function noExtras(cfg){
+  return Object.assign({}, cfg, {
+    extra:{on:false, amount:0, from:1},
+    annual:{on:false, amount:0, startYear:1},
+    lumps:[],
+    stepUp:{on:false, pct:0, startYear:2}
+  });
+}
+
+/* ================= UI state ================= */
+let S = null;
+
+function numVal(ref, dflt){
+  const el = typeof ref === 'string' ? $(ref) : ref;
+  const v = parseFloat(el && el.value);
+  return isFinite(v) ? v : dflt;
+}
+function stepPctFromUI(){
+  const k = $('#stepSeg .on').dataset.step;
+  if (k === '5') return 5;
+  if (k === '10') return 10;
+  return clamp(numVal('#stepPct', 5), 0.5, 30);
+}
+function readCfg(){
+  const P    = clamp(numVal('#P', 7500000), 10000, 1e10);
+  const rate = clamp(numVal('#rate', 7.8), 0, 30);
+  const yrs  = clamp(numVal('#years', 29), 1, 40);
+  const months = clamp(Math.round(yrs*12), 12, 480);
+  const sv = $('#start').value || '2026-12';
+  const [sy, sm] = sv.split('-').map(Number);
+  const start = new Date(sy, sm-1, 1);
+  const lumps = [];
+  $$('#lumpList .lump-row').forEach(rw => {
+    const a = numVal(rw.querySelector('.la'), 0);
+    const mo = clamp(Math.round(numVal(rw.querySelector('.lm'), 1)), 1, months);
+    if (a > 0) lumps.push({amount:a, month:mo});
+  });
+  return {
+    P, rate, months, start, mode: $('#modeSeg .on').dataset.mode,
+    extra: {on:$('#extraOn').checked, amount:clamp(numVal('#extraAmt',5000),0,1e9), from:clamp(Math.round(numVal('#extraFrom',1)),1,months)},
+    annual:{on:$('#annualOn').checked, amount:clamp(numVal('#annualAmt',59196),0,1e9), startYear:clamp(Math.round(numVal('#annualStart',1)),1,Math.ceil(months/12))},
+    lumps,
+    stepUp:{on:$('#stepSeg .on').dataset.step !== 'none', pct:stepPctFromUI(), startYear:clamp(Math.round(numVal('#stepStart',2)),1,40)}
+  };
+}
+function writeCfg(cfg){
+  $('#P').value = Math.round(cfg.P);
+  $('#rate').value = Math.round(cfg.rate * 20) / 20;
+  $('#years').value = r2(cfg.months/12);
+  $('#start').value = iso(cfg.start);
+  $('#extraOn').checked = cfg.extra.on;
+  $('#extraAmt').value = Math.round(cfg.extra.amount);
+  $('#extraFrom').value = cfg.extra.from;
+  $('#annualOn').checked = cfg.annual.on;
+  $('#annualAmt').value = Math.round(cfg.annual.amount);
+  $('#annualStart').value = cfg.annual.startYear;
+  $$('#modeSeg button').forEach(b => toggleSeg(b, b.dataset.mode === cfg.mode));
+  const stepKey = cfg.stepUp.on ? (cfg.stepUp.pct === 5 ? '5' : cfg.stepUp.pct === 10 ? '10' : 'custom') : 'none';
+  $$('#stepSeg button').forEach(b => toggleSeg(b, b.dataset.step === stepKey));
+  $('#stepPct').value = cfg.stepUp.on ? cfg.stepUp.pct : numVal('#stepPct', 5);
+  $('#stepStart').value = cfg.stepUp.startYear;
+  renderLumpRows(cfg.lumps.length ? cfg.lumps : []);
+  if (cfg.lumps.length) $$('#lumpList .lump-row').forEach((rw,i) => {
+    rw.querySelector('.la').value = Math.round(cfg.lumps[i].amount);
+    rw.querySelector('.lm').value = cfg.lumps[i].month;
+  });
+  syncStepFields();
+}
+function toggleSeg(btn, on){
+  btn.classList.toggle('on', on);
+  btn.setAttribute('aria-checked', on ? 'true' : 'false');
+}
+
+/* ================= default state ================= */
+function seedDefaults(){
+  $('#P').value = 7500000;
+  $('#rate').value = 7.8;
+  $('#years').value = 29;
+  $('#start').value = '2026-12';
+  $('#extraOn').checked = false;
+  $('#extraAmt').value = 5000;
+  $('#extraFrom').value = 1;
+  $('#annualOn').checked = true;
+  $('#annualAmt').value = 59196;
+  $('#annualStart').value = 1;
+  $('#stepPct').value = 5;
+  $('#stepStart').value = 2;
+}
+
+/* ================= lumpsum rows ================= */
+function lumpRowHTML(a, mo){
+  return '<div class="lump-row">' +
+    '<input type="number" class="la" inputmode="numeric" step="50000" placeholder="Amount (₹)" value="' + (a||'') + '">' +
+    '<input type="number" class="lm" inputmode="numeric" min="1" placeholder="EMI #" value="' + (mo||'') + '">' +
+    '<button type="button" class="btn-x" title="Remove" aria-label="Remove lumpsum">×</button>' +
+    '<div class="lump-hint"></div></div>';
+}
+function wireLumpRemove(scope){
+  (scope || document).querySelectorAll('.lump-row .btn-x').forEach(b => {
+    if (b._w) return; b._w = true;
+    b.addEventListener('click', () => { b.closest('.lump-row').remove(); recalc(); });
+  });
+}
+function renderLumpRows(lumps){
+  $('#lumpList').innerHTML = lumps.map(L => lumpRowHTML(L.amount, L.month)).join('');
+  wireLumpRemove($('#lumpList'));
+}
+$('#addLump').addEventListener('click', () => {
+  $('#lumpList').insertAdjacentHTML('beforeend', lumpRowHTML('', ''));
+  wireLumpRemove($('#lumpList'));
+  const rows = $$('#lumpList .lump-row');
+  rows[rows.length-1].querySelector('.la').addEventListener('input', scheduleRecalc);
+  rows[rows.length-1].querySelector('.lm').addEventListener('input', scheduleRecalc);
+  rows[rows.length-1].querySelector('.la').focus();
+});
+
+/* ================= recompute pipeline ================= */
+let deb = null;
+function scheduleRecalc(){ clearTimeout(deb); deb = setTimeout(recalc, 120); }
+
+function recalc(){
+  const cfg = readCfg();
+  const base = simulate(noExtras(cfg));
+  const plan = simulate(cfg);
+  const rt   = simulate(Object.assign({}, cfg, {mode:'rt'}));
+  const re   = simulate(Object.assign({}, cfg, {mode:'re'}));
+  S = {cfg, base, plan, rt, re};
+  renderAll();
+}
+function renderAll(){
+  if (!S) return;
+  const {cfg} = S;
+  syncSliders(cfg);
+  syncStepFields();
+  $('#Psub').textContent = short(cfg.P) + ' · ' + fmtINR.format(Math.round(cfg.P));
+  $('#rateSub').textContent = (cfg.rate/12).toFixed(2) + '% per month';
+  $('#yearsSub').textContent = fmtINR.format(cfg.months) + ' EMIs';
+  renderLumpHints();
+  renderMast();
+  renderKPIs();
+  renderRTRE();
+  renderScenarios();
+  renderInsights();
+  renderSchedule();
+  renderCharts();
+}
+
+/* ================= small syncs ================= */
+function syncSliders(cfg){
+  const set = (id, v) => { const el = $(id); const mn = +el.min, mx = +el.max; el.value = clamp(v, mn, mx); paint(el); };
+  set('#Pr', cfg.P); set('#rateR', cfg.rate); set('#yearsR', cfg.months/12);
+}
+function paint(el){
+  const p = el.min !== el.max ? ((el.value - el.min)/(el.max - el.min))*100 : 0;
+  el.style.setProperty('--p', p + '%');
+}
+function syncStepFields(){
+  const on = $('#stepSeg .on').dataset.step !== 'none';
+  $('#stepFields').style.display = on ? '' : 'none';
+  $('#stepPct').disabled = !on; $('#stepStart').disabled = !on;
+}
+function renderLumpHints(){
+  if (!S) return;
+  const {cfg, plan} = S;
+  $$('#lumpList .lump-row').forEach(rw => {
+    const a = numVal(rw.querySelector('.la'), 0);
+    const mo = clamp(Math.round(numVal(rw.querySelector('.lm'), 1)), 1, cfg.months);
+    const inPlan = mo <= plan.months;
+    rw.querySelector('.lump-hint').textContent = a > 0
+      ? (inPlan ? short(a) + ' with EMI #' + mo + ' — ' + mLabel(emiDate(cfg.start, mo)) : short(a) + ' with EMI #' + mo + ' — after payoff, not reached')
+      : 'Enter an amount to include it';
+  });
+  const from = clamp(Math.round(numVal('#extraFrom', 1)), 1, cfg.months);
+  $('#extraFromHint').textContent = '= ' + mLabel(emiDate(cfg.start, from));
+}
+function renderMast(){
+  const {plan, base, cfg} = S;
+  const saved = base.totInt - plan.totInt;
+  const hasExtra = cfg.extra.on || cfg.annual.on || cfg.lumps.length > 0 || cfg.stepUp.on;
+  $('#mastChipText').innerHTML = hasExtra
+    ? 'Closes <b>' + mLabel(emiDate(cfg.start, plan.months)) + '</b> · saves <b>' + short(saved) + '</b> interest'
+    : 'No prepayment plan yet — add one on the left';
+}
+
+/* ================= KPIs ================= */
+function kpiCard(cls, l, n, s){
+  return '<div class="kpi ' + cls + '" title="' + esc(n) + '"><div class="l">' + l + '</div><div class="n">' + n + '</div><div class="s">' + s + '</div></div>';
+}
+function renderKPIs(){
+  const {cfg, base, plan} = S;
+  const saved = base.totInt - plan.totInt;
+  const early = base.months - plan.months;
+  const emiSub = cfg.stepUp.on
+    ? 'steps up to ' + money(plan.maxLevel) + ' by the final year'
+    : (cfg.mode === 're' && (cfg.annual.on || cfg.lumps.length || cfg.extra.on) ? 'steps down to ' + money(plan.minLevel) + ' over time' : 'fixed for ' + fmtDur(cfg.months));
+  const extraSub = plan.totExtra > 0
+    ? plan.rows.filter(r => r.extra > 0).length + ' prepayment months'
+    : 'none added';
+  $('#kpis').innerHTML =
+    kpiCard('hero', 'Monthly EMI', money(plan.startEmi), emiSub) +
+    kpiCard('', 'Loan closes', mLabel(emiDate(cfg.start, plan.months)),
+      'in ' + fmtDur(plan.months) + (early > 0 ? ' · <b class="pos">' + fmtDur(early) + ' early</b>' : '')) +
+    kpiCard('good', 'Interest saved', short(saved), early > 0 ? 'vs ' + fmtDur(cfg.months) + ' base tenure' : 'add prepayments to save') +
+    kpiCard('cost', 'Total interest', short(plan.totInt), 'total paid ' + short(plan.totPaid)) +
+    kpiCard('cost', 'Extra paid', short(plan.totExtra), extraSub);
+}
+
+/* ================= RT vs RE ================= */
+function renderRTRE(){
+  const {cfg, base, rt, re} = S;
+  const hasExtra = cfg.extra.on || cfg.annual.on || cfg.lumps.length > 0 || cfg.stepUp.on;
+  if (!hasExtra){
+    $('#rtre').innerHTML = '<div class="hint">Add a prepayment (or step-up) to see the difference between the two modes.</div>';
+    return;
+  }
+  const arrow = k => cfg.mode === k ? ' ◂' : '';
+  $('#rtre').innerHTML =
+  '<table class="compare mode-' + cfg.mode + '"><thead><tr><th></th>' +
+    '<th>No prepayment</th>' +
+    '<th>Reduce term' + arrow('rt') + '</th>' +
+    '<th>Reduce EMI' + arrow('re') + '</th>' +
+  '</tr></thead><tbody>' +
+    '<tr><td class="k">EMI</td><td>' + money(base.startEmi) + '</td><td>' + money(rt.startEmi) + ' <span class="hint">fixed</span></td><td>' + money(re.startEmi) + ' → ' + money(re.lastLevel) + '</td></tr>' +
+    '<tr><td class="k">Closes in</td><td>' + fmtDur(base.months) + '</td><td><b class="pos">' + fmtDur(rt.months) + '</b></td><td><b class="pos">' + fmtDur(re.months) + '</b></td></tr>' +
+    '<tr><td class="k">Payoff date</td><td>' + mLabel(emiDate(cfg.start, base.months)) + '</td><td>' + mLabel(emiDate(cfg.start, rt.months)) + '</td><td>' + mLabel(emiDate(cfg.start, re.months)) + '</td></tr>' +
+    '<tr><td class="k">Total paid</td><td>' + money(base.totPaid) + '</td><td>' + money(rt.totPaid) + '</td><td>' + money(re.totPaid) + '</td></tr>' +
+    '<tr><td class="k">Interest</td><td>' + money(base.totInt) + '</td><td>' + money(rt.totInt) + '</td><td>' + money(re.totInt) + '</td></tr>' +
+    '<tr><td class="k">Interest saved</td><td>—</td><td class="pos"><b>' + short(base.totInt - rt.totInt) + '</b></td><td class="pos"><b>' + short(base.totInt - re.totInt) + '</b></td></tr>' +
+  '</tbody></table>' +
+  '<p class="hint" style="margin-top:10px">◂ marks your current mode. Reduce tenure saves the most interest; reduce EMI lowers your monthly outlay over time.</p>';
+}
+
+/* ================= scenario lab ================= */
+function renderScenarios(){
+  const {cfg, base} = S;
+  const modeName = cfg.mode === 'rt' ? 'Reduce tenure' : 'Reduce EMI';
+  $('#scenSub').innerHTML = 'Each strategy alone vs everything combined — computed in <b>' + modeName + '</b> mode. Click Apply to load a strategy.';
+  const mk = (id, name, sub, need, make) => ({id, name, sub, need, make});
+  const defs = [
+    mk('base', 'No prepayment', 'plain EMI', () => true, c => noExtras(c)),
+    mk('monthly', 'Monthly extra', '₹' + Math.round(cfg.extra.amount) + '/mo from EMI #' + cfg.extra.from, () => cfg.extra.on, c => Object.assign({}, noExtras(c), {extra:cfg.extra})),
+    mk('annual', 'Year-end prepayment', '₹' + Math.round(cfg.annual.amount) + ' every year', () => cfg.annual.on, c => Object.assign({}, noExtras(c), {annual:cfg.annual})),
+    mk('lump', 'Lumpsum' + (cfg.lumps.length > 1 ? 's' : ''), cfg.lumps.map(l => short(l.amount) + ' @#' + l.month).join(', '), () => cfg.lumps.length > 0, c => Object.assign({}, noExtras(c), {lumps:cfg.lumps})),
+    mk('step', 'EMI step-up', '+' + cfg.stepUp.pct + '%/yr from year ' + cfg.stepUp.startYear, () => cfg.stepUp.on, c => Object.assign({}, noExtras(c), {stepUp:cfg.stepUp})),
+    mk('full', 'Your full plan', 'everything combined', () => true, c => Object.assign({}, c))
+  ];
+  const html = ['<thead><tr><th>Plan</th><th>Monthly outlay (start)</th><th>Payoff</th><th>Tenure</th><th>Interest</th><th>Saved</th><th>Early</th><th></th></tr></thead><tbody>'];
+  defs.forEach(d => {
+    const unavailable = !d.need();
+    const sim = d.need() ? simulate(d.make(cfg)) : null;
+    const isFull = d.id === 'full';
+    const isBase = d.id === 'base';
+    const cls = unavailable ? ' class="inact"' : (isFull ? ' class="act"' : '');
+    const outlay = isBase
+      ? money(base.startEmi)
+      : (unavailable ? '—' : money(sim.startEmi) + (cfg.extra.on && (d.id === 'monthly' || isFull) ? ' + ' + money(cfg.extra.amount) : ''));
+    const saved = sim ? base.totInt - sim.totInt : 0;
+    const early = sim ? base.months - sim.months : 0;
+    html.push('<tr' + cls + '><td><span class="nm">' + d.name + '</span><span class="sd">' + esc(d.sub) + '</span></td>' +
+      '<td>' + outlay + '</td>' +
+      '<td>' + (sim ? mLabel(emiDate(cfg.start, sim.months)) : '—') + '</td>' +
+      '<td>' + (sim ? fmtDur(sim.months) : '—') + '</td>' +
+      '<td>' + (sim ? short(sim.totInt) : '—') + '</td>' +
+      '<td>' + (sim && !isBase ? '<b class="pos">' + short(saved) + '</b>' : '—') + '</td>' +
+      '<td>' + (sim && !isBase && early > 0 ? '<b class="pos">' + fmtDur(early) + '</b>' : '—') + '</td>' +
+      '<td><button class="btn ghost sm" data-apply="' + d.id + '"' + (unavailable ? ' disabled' : '') + '>Apply</button></td></tr>');
+  });
+  html.push('</tbody>');
+  $('#scenTbl').innerHTML = html.join('');
+  $$('#scenTbl [data-apply]').forEach(b => b.addEventListener('click', () => applyScenario(b.dataset.apply)));
+}
+function applyScenario(id){
+  if (!S) return;
+  const {cfg} = S;
+  let c;
+  if (id === 'base') c = noExtras(cfg);
+  else if (id === 'monthly') c = Object.assign({}, noExtras(cfg), {extra:cfg.extra});
+  else if (id === 'annual') c = Object.assign({}, noExtras(cfg), {annual:cfg.annual});
+  else if (id === 'lump') c = Object.assign({}, noExtras(cfg), {lumps:cfg.lumps});
+  else if (id === 'step') c = Object.assign({}, noExtras(cfg), {stepUp:cfg.stepUp});
+  else if (id === 'full') c = Object.assign({}, cfg, {extra:Object.assign({},cfg.extra,{on:true}), annual:Object.assign({},cfg.annual,{on:true}), stepUp:Object.assign({},cfg.stepUp,{on:true})});
+  if (!c) return;
+  writeCfg(c);
+  recalc();
+}
+
+/* ================= insights ================= */
+function renderInsights(){
+  const {cfg, base, plan} = S;
+  const saved = base.totInt - plan.totInt;
+  const early = base.months - plan.months;
+  const li = [];
+  const bits = [];
+  if (cfg.annual.on) bits.push('<b>' + money(cfg.annual.amount) + '</b> every year-end');
+  if (cfg.extra.on) bits.push('<b>' + money(cfg.extra.amount) + '</b> extra monthly');
+  if (cfg.lumps.length) bits.push('<b>' + money(cfg.lumps.reduce((s,l) => s + l.amount, 0)) + '</b> in lumpsums');
+  if (cfg.stepUp.on) bits.push('EMI step-up of <b>+' + cfg.stepUp.pct + '%/yr</b>');
+  if (!bits.length){
+    li.push('No prepayments yet. Flip on “Extra every month”, “Year-end prepayment”, add a lumpsum, or pick a step-up to see how fast the loan can close.');
+  } else {
+    li.push('Your plan — ' + bits.join(' + ') + ' — closes the loan in <b>' + mLabel(emiDate(cfg.start, plan.months)) + '</b>, <b>' + fmtDur(early) + '</b> earlier than the original ' + mLabel(emiDate(cfg.start, base.months)) + '.');
+    li.push('You pay <b>' + short(plan.totExtra) + '</b> extra and save <b class="pos">' + short(saved) + '</b> in interest — every ₹1 of prepayment eliminates <b class="pos">₹' + (plan.totExtra > 0 ? (saved/plan.totExtra).toFixed(2) : '0') + '</b> of interest.');
+    if (cfg.mode === 're' && (cfg.annual.on || cfg.lumps.length || cfg.extra.on))
+      li.push('In <b>Reduce EMI</b> mode your EMI is recalculated after each prepayment: it steps down from <b>' + money(plan.startEmi) + '</b> to <b>' + money(plan.minLevel) + '</b>, keeping the original close date in reach while ongoing extras still pull it forward.');
+    if (cfg.mode === 'rt')
+      li.push('In <b>Reduce tenure</b> mode the EMI stays at <b>' + money(plan.startEmi) + '</b>' + (cfg.stepUp.on ? ' until step-ups lift it' : ' for the whole loan') + ' — the extra payments shorten the tenure instead.');
+    if (cfg.stepUp.on)
+      li.push('With the step-up, your EMI reaches <b>' + money(plan.maxLevel) + '</b>; the extra interest you avoid compounds every month.');
+    if (saved > 0)
+      li.push('Interest saved (<b>' + short(saved) + '</b>) is <b>' + (saved/base.totInt*100).toFixed(0) + '%</b> of the base interest of ' + short(base.totInt) + '.');
+  }
+  $('#insights').innerHTML = li.map(t => '<li>' + t + '</li>').join('');
+}
+
+/* ================= schedule ================= */
+let schedView = 'yr';
+function renderSchedule(){
+  if (!S) return;
+  const {cfg, plan} = S;
+  const t = plan.rows;
+  const extraMonths = t.filter(r => r.extra > 0).length;
+  $('#schedNote').textContent = extraMonths > 0 ? extraMonths + ' month' + (extraMonths > 1 ? 's' : '') + ' with prepayments · ' + t.length + ' EMIs total' : t.length + ' EMIs total';
+  if (schedView === 'mo'){
+    const rows = t.map(r => {
+      const pre = r.extra > 0;
+      return '<tr' + (pre ? ' class="pre"' : '') + '><td>' + r.m + '</td><td>' + mLabel(emiDate(cfg.start, r.m)) + (pre ? '<span class="tag">+PREPAY</span>' : '') + '</td>' +
+        '<td>' + fmtINR.format(Math.round(r.emi)) + '</td><td>' + (r.extra ? fmtINR.format(Math.round(r.extra)) : '—') + '</td>' +
+        '<td>' + fmtINR.format(Math.round(r.interest)) + '</td><td>' + fmtINR.format(Math.round(r.principal)) + '</td>' +
+        '<td>' + fmtINR.format(Math.round(r.balance)) + '</td></tr>';
+    }).join('');
+    $('#sched').innerHTML = '<table><thead><tr><th>#</th><th>Month</th><th>EMI paid</th><th>Extra</th><th>Interest</th><th>Principal</th><th>Balance</th></tr></thead><tbody>' +
+      rows + '<tr class="end"><td></td><td>Loan closed — ' + mLabel(emiDate(cfg.start, plan.months)) + '</td><td></td><td></td><td>' +
+      fmtINR.format(Math.round(plan.totInt)) + '</td><td>' + fmtINR.format(Math.round(cfg.P)) + '</td><td>0</td></tr></tbody></table>';
+  } else {
+    const years = {};
+    t.forEach(r => {
+      const y = Math.ceil(r.m/12);
+      const d = years[y] = years[y] || {paid:0, interest:0, principal:0, extra:0, end:0};
+      d.paid += r.emi + r.extra; d.interest += r.interest; d.principal += r.principal; d.extra += r.extra; d.end = r.balance;
+    });
+    const rows = Object.keys(years).map(y => {
+      const d = years[y];
+      return '<tr' + (d.extra > 0 ? ' class="pre"' : '') + '><td>Year ' + y + '</td><td>' + mLabel(emiDate(cfg.start, (y-1)*12+1)) + ' – ' + mLabel(emiDate(cfg.start, Math.min(y*12, plan.months))) + '</td>' +
+        '<td>' + fmtINR.format(Math.round(d.paid)) + '</td><td>' + (d.extra ? fmtINR.format(Math.round(d.extra)) : '—') + '</td>' +
+        '<td>' + fmtINR.format(Math.round(d.interest)) + '</td><td>' + fmtINR.format(Math.round(d.principal)) + '</td>' +
+        '<td>' + fmtINR.format(Math.round(d.end)) + '</td></tr>';
+    }).join('');
+    $('#sched').innerHTML = '<table><thead><tr><th>Year</th><th>Period</th><th>Total paid</th><th>Prepayments</th><th>Interest</th><th>Principal</th><th>Year-end balance</th></tr></thead><tbody>' +
+      rows + '<tr class="end"><td></td><td>Loan closed — ' + mLabel(emiDate(cfg.start, plan.months)) + '</td><td></td><td></td><td>' +
+      fmtINR.format(Math.round(plan.totInt)) + '</td><td>' + fmtINR.format(Math.round(cfg.P)) + '</td><td>0</td></tr></tbody></table>';
+  }
+}
+function exportCSV(){
+  if (!S) return;
+  const {cfg, plan} = S;
+  let csv = 'Month,Date,EMI paid,Extra paid,Interest,Principal,Balance\n';
+  plan.rows.forEach(r => {
+    csv += r.m + ',' + iso(emiDate(cfg.start, r.m)) + ',' + r2(r.emi) + ',' + r2(r.extra) + ',' + r2(r.interest) + ',' + r2(r.principal) + ',' + r2(r.balance) + '\n';
+  });
+  const blob = new Blob(['\uFEFF' + csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'emi-amortization-schedule.csv';
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 400);
+}
+
+/* ================= charts (responsive, rendered to fit their card) ================= */
+function sizeOf(el){
+  const w = el.clientWidth || el.parentNode.clientWidth || 560;
+  const W = Math.round(clamp(w, 300, 960));
+  const H = Math.round(clamp(W * 0.52, 210, 330));
+  el._lastW = W;
+  return {W, H};
+}
+function niceStep(max){
+  const raw = max / 5, p = Math.pow(10, Math.floor(Math.log10(raw || 1))), n = raw / p;
+  const f = n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10;
+  return f * p;
+}
+function yTicks(max){
+  const st = niceStep(max), out = [];
+  for (let v = 0; v <= max + st*0.001; v += st) out.push(v);
+  return out;
+}
+function leftPad(max){
+  return clamp(Math.ceil(short(max).replace('₹','').length) * 7 + 16, 42, 70);
+}
+function axes(max, W, H, L, R, T, B){
+  const ticks = yTicks(max);
+  let s = '';
+  ticks.forEach(v => {
+    const y = T + (H - T - B) * (1 - v/max);
+    s += '<line x1="' + L + '" y1="' + y.toFixed(1) + '" x2="' + (W-R) + '" y2="' + y.toFixed(1) + '" stroke="#EFE8D6" stroke-width="1"/>' +
+         '<text x="' + (L-7) + '" y="' + (y+3.5).toFixed(1) + '" text-anchor="end" font-size="10" fill="#8E937F" font-family="Spline Sans Mono, monospace">' + short(v).replace('₹','') + '</text>';
+  });
+  return s;
+}
+function xTicksMonths(months, start, W, H, L, R, T, B){
+  const spanYr = months / 12;
+  const maxTicks = Math.max(3, Math.floor((W - L - R) / 60));
+  const stepYr = Math.max(1, Math.ceil(spanYr / maxTicks));
+  let s = '';
+  for (let y = 0; y <= spanYr + 1e-9; y += stepYr){
+    const m = Math.round(y*12);
+    const x = L + (W-L-R) * (m/months);
+    s += '<line x1="' + x.toFixed(1) + '" y1="' + (H-B) + '" x2="' + x.toFixed(1) + '" y2="' + (H-B+4) + '" stroke="#D6CBB0" stroke-width="1"/>' +
+         '<text x="' + x.toFixed(1) + '" y="' + (H-B+15) + '" text-anchor="middle" font-size="10" fill="#8E937F" font-family="Spline Sans Mono, monospace">' + (start.getFullYear()+y) + '</text>';
+  }
+  if (Math.round(spanYr*12) % (stepYr*12) !== 0){
+    const x = W - R;
+    s += '<line x1="' + x + '" y1="' + (H-B) + '" x2="' + x + '" y2="' + (H-B+4) + '" stroke="#D6CBB0" stroke-width="1"/>' +
+         '<text x="' + x + '" y="' + (H-B+15) + '" text-anchor="end" font-size="10" fill="#8E937F" font-family="Spline Sans Mono, monospace">' + (start.getFullYear()+Math.round(spanYr)) + '</text>';
+  }
+  return s;
+}
+function pathOf(vals, months, W, H, L, R, T, B, yMax){
+  let d = '', started = false;
+  for (let m = 0; m <= months; m++){
+    const v = vals[m];
+    if (v == null){ started = false; continue; }
+    const x = L + (W-L-R) * (m/months);
+    const y = T + (H-T-B) * (1 - v/yMax);
+    d += (started ? ' L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1);
+    started = true;
+  }
+  return d;
+}
+/* one-time pointer wiring; per-render state lives in el._chart */
+function wireChart(el){
+  if (el._wired) return;
+  el._wired = true;
+  el.addEventListener('pointermove', ev => {
+    const c = el._chart;
+    const svg = el.querySelector('svg');
+    if (!c || !svg) return;
+    const box = svg.getBoundingClientRect();
+    if (!box.width) return;
+    const tt = el.querySelector('.tt');
+    const fxr = clamp((ev.clientX - box.left)/box.width, 0, 1);
+    if (c.bars){
+      if (!tt) return;
+      const i = clamp(Math.floor((fxr * c.W - c.CL) / c.bw), 0, c.count - 1);
+      tt.innerHTML = c.tip(i);
+      tt.style.opacity = 1;
+      placeTT(tt, ev, box, fxr * box.width);
+      return;
+    }
+    const px = fxr * c.W;
+    const m = clamp(Math.round((px - c.L)/(c.W - c.L - c.R) * c.months), 0, c.months);
+    const xh = el.querySelector('.xhair');
+    if (xh){ xh.style.left = (px/c.W*100) + '%'; xh.style.opacity = 1; }
+    if (tt){
+      tt.innerHTML = c.tip(m);
+      tt.style.opacity = 1;
+      placeTT(tt, ev, box, fxr * box.width);
+    }
+  });
+  el.addEventListener('pointerleave', () => {
+    const xh = el.querySelector('.xhair'), tt = el.querySelector('.tt');
+    if (xh) xh.style.opacity = 0;
+    if (tt) tt.style.opacity = 0;
+  });
+}
+function placeTT(tt, ev, box, anchorX){
+  const tw = tt.offsetWidth, th = tt.offsetHeight;
+  let left = anchorX + 14;
+  if (left + tw > box.width - 6) left = anchorX - tw - 14;
+  tt.style.left = Math.max(4, left) + 'px';
+  tt.style.top = clamp(ev.clientY - box.top - th - 12, 6, Math.max(6, box.height - th - 6)) + 'px';
+}
+function renderLineChart(el, opts){
+  const {W, H} = sizeOf(el);
+  const L = leftPad(opts.yMax), R = 14, T = 16, B = 30;
+  const g = {W, H, L, R, T, B};
+  el._chart = {W, H, L, R, T, B, months: opts.months, tip: opts.tip};
+  let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet" role="img">';
+  if (opts.grad){
+    s += '<defs><linearGradient id="' + opts.grad.id + '" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="' + opts.grad.top + '"/><stop offset="1" stop-color="' + opts.grad.bot + '"/></linearGradient></defs>';
+  }
+  s += axes(opts.yMax, W, H, L, R, T, B);
+  s += xTicksMonths(opts.months, opts.start, W, H, L, R, T, B);
+  if (opts.area) s += '<path d="' + opts.area.d + '" fill="' + opts.area.fill + '" stroke="none"/>';
+  (opts.prepayTicks || []).forEach(m => {
+    const x = L + (W-L-R) * (m/opts.months);
+    s += '<line x1="' + x.toFixed(1) + '" y1="' + T + '" x2="' + x.toFixed(1) + '" y2="' + (T+5) + '" stroke="#C98A0A" stroke-width="2" opacity=".85"/>';
+  });
+  opts.series.forEach(se => {
+    const d = pathOf(se.values, opts.months, W, H, L, R, T, B, opts.yMax);
+    s += '<path d="' + d + '" fill="none" stroke="' + se.color + '" stroke-width="' + (se.w || 2) + '"' + (se.dash ? ' stroke-dasharray="' + se.dash + '"' : '') + ' stroke-linejoin="round" stroke-linecap="round"/>';
+  });
+  (opts.marks || []).forEach(mk => {
+    if (mk.m == null) return;
+    const x = L + (W-L-R) * (mk.m/opts.months);
+    const y = T + (H-T-B) * (1 - mk.v/opts.yMax);
+    s += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="4" fill="' + mk.color + '" stroke="#FFFDF7" stroke-width="2"/>';
+    s += '<text x="' + x.toFixed(1) + '" y="' + (y-9).toFixed(1) + '" text-anchor="' + (x > W*0.7 ? 'end' : 'middle') + '" font-size="10.5" font-weight="600" fill="' + mk.color + '" font-family="Spline Sans Mono, monospace"' +
+      ' stroke="#FFFDF7" stroke-width="3.5" paint-order="stroke">' + mk.label + '</text>';
+  });
+  if (opts.svgExtra) s += opts.svgExtra(g);
+  s += '</svg>';
+  el.innerHTML = '<div class="xhair"></div><div class="tt"></div>' + s;
+  const xh = el.querySelector('.xhair');
+  if (xh){ xh.style.top = (T/H*100) + '%'; xh.style.bottom = (B/H*100) + '%'; }
+  wireChart(el);
+}
+function renderCharts(){
+  if (!S) return;
+  const {cfg, base, plan} = S;
+  const n = cfg.months;
+  const balB = [], balP = [], intB = [], intP = [];
+  let ciB = 0, ciP = 0;
+  balB[0] = cfg.P; balP[0] = cfg.P; intB[0] = 0; intP[0] = 0;
+  const bmap = new Map(base.rows.map(r => [r.m, r]));
+  const pmap = new Map(plan.rows.map(r => [r.m, r]));
+  for (let m = 1; m <= n; m++){
+    const b = bmap.get(m), p = pmap.get(m);
+    if (b){ ciB += b.interest; balB[m] = b.balance; } else { balB[m] = balB[m-1]; }
+    intB[m] = ciB;
+    if (p){ ciP += p.interest; balP[m] = p.balance; } else { balP[m] = null; }
+    intP[m] = ciP;
+  }
+  const prepayMonths = plan.rows.filter(r => r.extra > 0).map(r => r.m);
+  /* ---- balance chart ---- */
+  const balEl = $('#chBal');
+  let areaD = '';
+  (function(){
+    const {W, H} = sizeOf(balEl);
+    const L = leftPad(cfg.P), R = 14, T = 16, B = 30;
+    for (let m = 0; m <= plan.months; m++){
+      const x = L + (W-L-R) * (m/n);
+      const y = T + (H-T-B) * (1 - balP[m]/cfg.P);
+      areaD += (m === 0 ? 'M' : 'L') + x.toFixed(1) + ' ' + y.toFixed(1);
+    }
+    areaD += ' L' + (L + (W-L-R)*(plan.months/n)).toFixed(1) + ' ' + (H-B) + ' L' + L + ' ' + (H-B) + ' Z';
+  })();
+  renderLineChart(balEl, {
+    months:n, start:cfg.start, yMax:cfg.P,
+    grad:{id:'gBal', top:'rgba(23,92,67,.20)', bot:'rgba(23,92,67,.02)'},
+    area:{d:areaD, fill:'url(#gBal)'},
+    prepayTicks: prepayMonths.length <= 60 ? prepayMonths : [],
+    series:[
+      {values:balB, color:'#A9A28E', dash:'5 5', w:1.6},
+      {values:balP, color:'#175C43', w:2.4}
+    ],
+    marks:[{m:plan.months, v:0, color:'#175C43', label:'closes ' + mLabel(emiDate(cfg.start, plan.months))}],
+    tip: m =>
+      '<div class="tt-date">' + mLabel(emiDate(cfg.start, m)) + ' · EMI #' + m + '</div>' +
+      '<div class="trow"><span class="k">Balance (plan)</span><span class="v">' + (balP[m] == null ? 'closed' : short(balP[m])) + '</span></div>' +
+      '<div class="trow"><span class="k">Balance (base)</span><span class="v">' + short(balB[m]) + '</span></div>'
+  });
+  wireChart(balEl);
+  $('#lgBal').innerHTML = '<span class="lg-item"><span class="sw" style="background:#175C43"></span>With your plan</span>' +
+    '<span class="lg-item"><span class="sw dash" style="--c:#A9A28E"></span>No prepayment</span>' +
+    (prepayMonths.length ? '<span class="lg-item"><span class="tick"></span>Prepayment months</span>' : '');
+  /* ---- cumulative interest chart ---- */
+  const intMax = intB[n] || 1;
+  const savedTotal = base.totInt - plan.totInt;
+  let gapD = '';
+  (function(){
+    const {W, H} = sizeOf($('#chInt'));
+    const L = leftPad(intMax), R = 14, T = 16, B = 30;
+    for (let m = 0; m <= plan.months; m++){
+      const x = L + (W-L-R) * (m/n);
+      const y = T + (H-T-B) * (1 - intP[m]/intMax);
+      gapD += (m === 0 ? 'M' : 'L') + x.toFixed(1) + ' ' + y.toFixed(1);
+    }
+    for (let m = plan.months; m >= 0; m--){
+      const x = L + (W-L-R) * (m/n);
+      const y = T + (H-T-B) * (1 - intB[m]/intMax);
+      gapD += ' L' + x.toFixed(1) + ' ' + y.toFixed(1);
+    }
+    gapD += ' Z';
+  })();
+  const intEl = $('#chInt');
+  renderLineChart(intEl, {
+    months:n, start:cfg.start, yMax:intMax,
+    grad:{id:'gInt', top:'rgba(23,92,67,.16)', bot:'rgba(23,92,67,.03)'},
+    area:{d:gapD, fill:'url(#gInt)'},
+    series:[
+      {values:intB, color:'#B04828', dash:'5 5', w:1.6},
+      {values:intP, color:'#175C43', w:2.4}
+    ],
+    marks:[],
+    svgExtra: g => {
+      if (savedTotal <= 500) return '';
+      const gapM = Math.min(n, Math.round(plan.months * 0.62));
+      const x = g.L + (g.W-g.L-g.R) * (gapM/n);
+      const y = g.T + (g.H-g.T-g.B) * (1 - (intB[gapM] + intP[gapM])/(2*intMax));
+      return '<text x="' + x.toFixed(1) + '" y="' + (y-8).toFixed(1) + '" text-anchor="middle" font-size="11.5" font-weight="600" fill="#175C43" font-family="Spline Sans Mono, monospace" stroke="#FFFDF7" stroke-width="4" paint-order="stroke">saved ' + short(savedTotal) + '</text>';
+    },
+    tip: m =>
+      '<div class="tt-date">' + mLabel(emiDate(cfg.start, m)) + ' · EMI #' + m + '</div>' +
+      '<div class="trow"><span class="k">Interest (plan)</span><span class="v">' + short(intP[m]) + '</span></div>' +
+      '<div class="trow"><span class="k">Interest (base)</span><span class="v">' + short(intB[m]) + '</span></div>' +
+      '<div class="trow"><span class="k">Saved so far</span><span class="v" style="color:#E9C76C">' + short(Math.max(0, intB[m] - intP[m])) + '</span></div>'
+  });
+  wireChart(intEl);
+  $('#lgInt').innerHTML = '<span class="lg-item"><span class="sw" style="background:#175C43"></span>With your plan</span>' +
+    '<span class="lg-item"><span class="sw dash" style="--c:#B04828"></span>No prepayment</span>';
+  /* ---- yearly bars chart ---- */
+  const yrs = {};
+  plan.rows.forEach(r => {
+    const y = Math.ceil(r.m/12);
+    const d = yrs[y] = yrs[y] || {interest:0, principal:0, extra:0};
+    d.interest += r.interest; d.principal += r.principal; d.extra += r.extra;
+  });
+  const yKeys = Object.keys(yrs).map(Number);
+  const yrEl = $('#chYr');
+  if (!yKeys.length){ yrEl.innerHTML = ''; yrEl._chart = null; return; }
+  const yMaxBar = Math.max.apply(null, yKeys.map(y => yrs[y].interest + yrs[y].principal + yrs[y].extra)) * 1.02 || 1;
+  const {W, H} = sizeOf(yrEl);
+  const CL = leftPad(yMaxBar), CR = 14, CT = 16, CB = 30;
+  const plotW = W - CL - CR;
+  const bw = plotW / yKeys.length;
+  const barW = clamp(bw - 5, 3, 46);
+  const labelEvery = Math.max(1, Math.ceil(yKeys.length / Math.max(3, Math.floor(plotW / 58))));
+  let yrS = '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet" role="img">';
+  yrS += axes(yMaxBar, W, H, CL, CR, CT, CB);
+  yKeys.forEach((y, i) => {
+    const d = yrs[y];
+    const x = CL + i*bw + (bw - barW)/2;
+    const h1 = (H-CT-CB) * d.interest/yMaxBar;
+    const h2 = (H-CT-CB) * d.principal/yMaxBar;
+    const h3 = (H-CT-CB) * d.extra/yMaxBar;
+    const y3 = H-CB, y2 = y3-h3, y1 = y2-h2, y0 = y1-h1;
+    yrS += '<rect x="' + x.toFixed(1) + '" y="' + y0.toFixed(1) + '" width="' + barW.toFixed(1) + '" height="' + Math.max(0,h1).toFixed(1) + '" rx="1.5" fill="#B04828" opacity=".85"/>';
+    yrS += '<rect x="' + x.toFixed(1) + '" y="' + y1.toFixed(1) + '" width="' + barW.toFixed(1) + '" height="' + Math.max(0,h2).toFixed(1) + '" rx="1.5" fill="#175C43"/>';
+    if (h3 > 0.5) yrS += '<rect x="' + x.toFixed(1) + '" y="' + y2.toFixed(1) + '" width="' + barW.toFixed(1) + '" height="' + Math.max(0,h3).toFixed(1) + '" rx="1.5" fill="#C98A0A"/>';
+    if (i % labelEvery === 0 || i === yKeys.length - 1){
+      yrS += '<text x="' + (x + barW/2).toFixed(1) + '" y="' + (H-CB+15) + '" text-anchor="middle" font-size="10" fill="#8E937F" font-family="Spline Sans Mono, monospace">' + (cfg.start.getFullYear() + y - 1) + '</text>';
+    }
+  });
+  yrS += '</svg>';
+  yrEl.innerHTML = '<div class="tt"></div>' + yrS;
+  yrEl._chart = {bars:true, W, CL, bw, count:yKeys.length, tip: i => {
+    const y = yKeys[i], d = yrs[y];
+    const mEnd = Math.min(y*12, plan.months);
+    return '<div class="tt-date">Year ' + y + ' · ' + mLabel(emiDate(cfg.start, (y-1)*12+1)) + ' – ' + mLabel(emiDate(cfg.start, mEnd)) + '</div>' +
+      '<div class="trow"><span class="k">Interest</span><span class="v">' + short(d.interest) + '</span></div>' +
+      '<div class="trow"><span class="k">Principal (EMI)</span><span class="v">' + short(d.principal) + '</span></div>' +
+      '<div class="trow"><span class="k">Prepayments</span><span class="v">' + (d.extra ? short(d.extra) : '—') + '</span></div>' +
+      '<div class="trow"><span class="k">Total paid</span><span class="v">' + short(d.interest + d.principal + d.extra) + '</span></div>';
+  }};
+  wireChart(yrEl);
+  $('#lgYr').innerHTML = '<span class="lg-item"><span class="sw" style="background:#B04828"></span>Interest</span>' +
+    '<span class="lg-item"><span class="sw" style="background:#175C43"></span>Principal</span>' +
+    '<span class="lg-item"><span class="sw" style="background:#C98A0A"></span>Prepayments</span>';
+}
+
+/* ================= events ================= */
+['#P','#rate','#years','#extraAmt','#extraFrom','#annualAmt','#annualStart','#stepPct','#stepStart'].forEach(sel => {
+  $(sel).addEventListener('input', scheduleRecalc);
+});
+['#Pr','#rateR','#yearsR'].forEach(sel => {
+  $(sel).addEventListener('input', () => {
+    const s = $(sel);
+    paint(s);
+    if (s.id === 'Pr') $('#P').value = Math.round(+s.value);
+    else if (s.id === 'rateR') $('#rate').value = Math.round(+s.value * 20) / 20;
+    else $('#years').value = Math.round(+s.value);
+    scheduleRecalc();
+  });
+});
+['#extraOn','#annualOn'].forEach(sel => $(sel).addEventListener('change', scheduleRecalc));
+$('#start').addEventListener('change', scheduleRecalc);
+$$('#Pchips .chip').forEach(ch => ch.addEventListener('click', () => {
+  $('#P').value = ch.dataset.v;
+  $$('#Pchips .chip').forEach(c => c.classList.toggle('on', c === ch));
+  scheduleRecalc();
+}));
+$$('#modeSeg button').forEach(b => b.addEventListener('click', () => {
+  $$('#modeSeg button').forEach(x => toggleSeg(x, x === b));
+  $('#modeHint').textContent = b.dataset.mode === 'rt'
+    ? 'EMI stays fixed — every prepayment shortens the tenure (saves the most interest).'
+    : 'EMI is recalculated after each prepayment to hold the original close date; ongoing extras still close it earlier.';
+  scheduleRecalc();
+}));
+$$('#stepSeg button').forEach(b => b.addEventListener('click', () => {
+  $$('#stepSeg button').forEach(x => toggleSeg(x, x === b));
+  if (b.dataset.step === '5' || b.dataset.step === '10') $('#stepPct').value = b.dataset.step;
+  syncStepFields();
+  scheduleRecalc();
+}));
+$$('#schedSeg button').forEach(b => b.addEventListener('click', () => {
+  schedView = b.dataset.v;
+  $$('#schedSeg button').forEach(x => toggleSeg(x, x === b));
+  renderSchedule();
+}));
+$('#csvBtn').addEventListener('click', exportCSV);
+$('#resetBtn').addEventListener('click', () => {
+  seedDefaults();
+  renderLumpRows([]);
+  $$('#Pchips .chip').forEach(c => c.classList.remove('on'));
+  $$('#modeSeg button').forEach(x => toggleSeg(x, x.dataset.mode === 'rt'));
+  $$('#stepSeg button').forEach(x => toggleSeg(x, x.dataset.step === 'none'));
+  $('#modeHint').textContent = 'EMI stays fixed — every prepayment shortens the tenure (saves the most interest).';
+  recalc();
+});
+
+/* responsive charts: re-render when a chart's card is resized */
+if (window.ResizeObserver){
+  const ro = new ResizeObserver(entries => {
+    let need = false;
+    entries.forEach(en => {
+      const w = en.contentRect.width;
+      if (Math.abs((en.target._lastW || 0) - w) > 8) need = true;
+    });
+    if (need) scheduleRecalc();
+  });
+  ['#chBal','#chInt','#chYr'].forEach(s => ro.observe($(s)));
+} else {
+  window.addEventListener('resize', scheduleRecalc);
+}
+window.addEventListener('resize', scheduleRecalc);
+
+/* ================= init ================= */
+seedDefaults();
+$('#modeHint').textContent = 'EMI stays fixed — every prepayment shortens the tenure (saves the most interest).';
+renderLumpRows([]);
+recalc();
+</script>
+</body>
+</html>

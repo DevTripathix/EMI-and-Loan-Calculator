@@ -5,18 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="light">
 <title>EMI &amp; Prepayment Studio</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%230E3A2C'/%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%23E9C76C' stroke-width='1.4'/%3E%3Ctext x='16' y='21.5' font-family='Georgia' font-size='15' fill='%23F7F1E1' text-anchor='middle'%3E%E2%82%B9%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%230B2C4D'/%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%23E9C76C' stroke-width='1.4'/%3E%3Ctext x='16' y='21.5' font-family='Georgia' font-size='15' fill='%23F4F8FC' text-anchor='middle'%3E%E2%82%B9%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:#F5F0E3; --card:#FFFDF7; --line:#E5DDC9; --line2:#D6CBB0;
-  --ink:#1F2A22; --ink2:#5B6457; --ink3:#8E937F;
-  --green:#175C43; --green-deep:#0E3A2C; --green-soft:#E5EFE8;
-  --rust:#B04828; --rust-soft:#F7E5DC;
-  --gold:#C98A0A; --gold-soft:#F8EDD3; --gold-line:#E9C76C;
-  --cream:#F7F1E1;
+  --paper:#F2F5F9; --card:#FFFFFF; --line:#DBE3EC; --line2:#C3D1DE;
+  --ink:#0F2033; --ink2:#4E6070; --ink3:#6E8095;
+  --green:#17679E; --green-deep:#0B2C4D; --green-soft:#E7F0F8;
+  --save:#0E7C66;
+  --rust:#C05621; --rust-soft:#FBEAE0;
+  --gold:#D69A00; --gold-soft:#FBF0D6; --gold-line:#E9C76C;
+  --cream:#F4F8FC;
   --serif:'Fraunces',Georgia,'Times New Roman',serif;
   --sans:'Instrument Sans','Segoe UI',Verdana,sans-serif;
   --mono:'Spline Sans Mono','Cascadia Mono',Consolas,monospace;
@@ -27,7 +28,7 @@ html{scroll-behavior:smooth}
 body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.55 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 ::selection{background:var(--gold-soft);color:var(--ink)}
 .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
-.pos{color:var(--green);font-weight:600}
+.pos{color:var(--save);font-weight:600}
 .neg{color:var(--rust);font-weight:600}
 .hint{font-size:12px;color:var(--ink3);line-height:1.45}
 h1,h2,h3{margin:0}
@@ -36,8 +37,8 @@ h1,h2,h3{margin:0}
 .masthead{
   background:
     radial-gradient(1100px 420px at -8% -60%, rgba(233,199,108,.14), transparent 62%),
-    repeating-linear-gradient(115deg, transparent 0 7px, rgba(247,241,225,.04) 7px 8px),
-    repeating-linear-gradient(65deg, transparent 0 7px, rgba(247,241,225,.04) 7px 8px),
+    repeating-linear-gradient(115deg, transparent 0 7px, rgba(244,248,252,.05) 7px 8px),
+    repeating-linear-gradient(65deg, transparent 0 7px, rgba(244,248,252,.05) 7px 8px),
     var(--green-deep);
   color:var(--cream);padding:24px clamp(16px,4vw,44px) 22px;position:relative;overflow:hidden;
 }
@@ -48,9 +49,9 @@ h1,h2,h3{margin:0}
 .mast-titles{flex:1;min-width:240px}
 .mast-title{font:600 clamp(21px,3vw,29px)/1.12 var(--serif);letter-spacing:.01em}
 .mast-title em{font-style:normal;color:var(--gold-line)}
-.mast-sub{margin-top:5px;font-size:13px;color:rgba(247,241,225,.72);letter-spacing:.02em}
-.mast-chip{display:flex;align-items:center;gap:9px;border:1px solid rgba(247,241,225,.28);
-  border-radius:999px;padding:9px 18px;font-size:13px;color:var(--cream);background:rgba(0,0,0,.18);
+.mast-sub{margin-top:5px;font-size:13px;color:rgba(244,248,252,.75);letter-spacing:.02em}
+.mast-chip{display:flex;align-items:center;gap:9px;border:1px solid rgba(255,255,255,.28);
+  border-radius:999px;padding:9px 18px;font-size:13px;color:var(--cream);background:rgba(255,255,255,.10);
   flex-wrap:wrap;max-width:360px}
 .mast-chip .dot{width:8px;height:8px;border-radius:50%;background:var(--gold-line);flex:0 0 auto;
   box-shadow:0 0 0 3px rgba(233,199,108,.22)}
@@ -66,12 +67,12 @@ h1,h2,h3{margin:0}
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .kpi .s{font-size:11.5px;color:var(--ink2);margin-top:4px;line-height:1.4;min-height:2.7em}
 .kpi .s b{font-weight:600}
-.kpi.good .n{color:var(--green)}
+.kpi.good .n{color:var(--save)}
 .kpi.cost .n{color:var(--rust)}
-.kpi.hero{background:linear-gradient(140deg,#0E3A2C 0%,#155040 100%);border-color:#0E3A2C;border-top:3px double rgba(233,199,108,.5)}
-.kpi.hero .l{color:rgba(247,241,225,.62)}
+.kpi.hero{background:linear-gradient(140deg,#0B2C4D 0%,#155A85 100%);border-color:#0B2C4D;border-top:3px double rgba(233,199,108,.5)}
+.kpi.hero .l{color:rgba(244,248,252,.65)}
 .kpi.hero .n{color:var(--cream)}
-.kpi.hero .s{color:rgba(247,241,225,.78)}
+.kpi.hero .s{color:rgba(244,248,252,.8)}
 .kpi.hero .s b.pos{color:var(--gold-line)}
 
 /* ---------- layout ---------- */
@@ -100,10 +101,10 @@ h1,h2,h3{margin:0}
 .field label{display:block;font-size:11px;font-weight:600;letter-spacing:.1em;
   text-transform:uppercase;color:var(--ink3);margin-bottom:5px}
 .field input[type=number],.field input[type=text],.field input[type=month]{
-  width:100%;border:1px solid var(--line2);border-radius:7px;background:#FFFEFA;
+  width:100%;border:1px solid var(--line2);border-radius:7px;background:#FFFFFF;
   padding:8px 11px;font:500 14.5px var(--mono);color:var(--ink);outline:none;min-width:0;
   transition:border-color .15s, box-shadow .15s}
-.field input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(23,92,67,.12)}
+.field input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(23,103,158,.14)}
 .field input:disabled{opacity:.55;cursor:not-allowed}
 input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:22px;background:transparent;margin:2px 0 0}
 input[type=range]::-webkit-slider-runnable-track{height:3px;border-radius:2px;background:linear-gradient(90deg,var(--green) var(--p,0%),var(--line2) var(--p,0%))}
@@ -118,13 +119,13 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .amount-box .pfx{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--ink3);font:500 14px var(--mono);pointer-events:none}
 .amount-box input{padding-left:28px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.chip{border:1px solid var(--line2);background:#FFFEFA;border-radius:999px;padding:3px 11px;
+.chip{border:1px solid var(--line2);background:#FFFFFF;border-radius:999px;padding:3px 11px;
   font:500 11.5px var(--mono);color:var(--ink2);cursor:pointer;transition:all .15s}
 .chip:hover{border-color:var(--green);color:var(--green)}
 .chip.on{background:var(--green);border-color:var(--green);color:var(--cream)}
 
 /* ---------- segmented ---------- */
-.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:#F0EADA;border:1px solid var(--line);
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:#EAF0F6;border:1px solid var(--line);
   border-radius:8px;padding:3px;gap:3px}
 .seg button{border:0;background:transparent;border-radius:6px;padding:7px 6px;cursor:pointer;
   font:600 12.5px var(--sans);color:var(--ink2);transition:all .15s;white-space:nowrap}
@@ -151,7 +152,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 /* ---------- lumpsum rows ---------- */
 .lump-list{display:grid;gap:8px;margin-top:6px}
 .lump-row{display:grid;grid-template-columns:minmax(0,1fr) 80px 22px;gap:8px;align-items:center}
-.lump-row input{width:100%;border:1px solid var(--line2);border-radius:7px;background:#FFFEFA;
+.lump-row input{width:100%;border:1px solid var(--line2);border-radius:7px;background:#FFFFFF;
   padding:7px 10px;font:500 13px var(--mono);color:var(--ink);outline:none;min-width:0}
 .lump-row input:focus{border-color:var(--green)}
 .lump-hint{font-size:11px;color:var(--ink3);grid-column:1/3;margin-top:-4px}
@@ -182,10 +183,10 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
   border-radius:8px;padding:8px 11px;font:12px/1.55 var(--sans);box-shadow:0 6px 16px rgba(0,0,0,.28);
   opacity:0;transition:opacity .12s;z-index:5;white-space:normal;width:max-content;max-width:280px}
 .tt .trow{display:flex;justify-content:space-between;gap:14px;align-items:baseline}
-.tt .trow .k{color:rgba(247,241,225,.7);font-size:11px}
+.tt .trow .k{color:rgba(244,248,252,.72);font-size:11px}
 .tt .trow .v{font-family:var(--mono);font-weight:600}
 .tt .tt-date{font:600 11.5px var(--mono);color:var(--gold-line);letter-spacing:.06em;margin-bottom:3px;text-transform:uppercase}
-.xhair{position:absolute;top:5%;bottom:10%;width:1px;background:rgba(31,42,34,.35);pointer-events:none;
+.xhair{position:absolute;top:5%;bottom:10%;width:1px;background:rgba(15,32,51,.35);pointer-events:none;
   opacity:0;transition:opacity .12s;z-index:4}
 .legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px;font-size:12px;color:var(--ink2)}
 .lg-item{display:inline-flex;align-items:center;gap:6px}
@@ -203,7 +204,7 @@ table.compare{width:100%;min-width:430px;border-collapse:collapse;font-size:12.5
 table.compare th{font:600 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);
   text-align:right;padding:7px 8px 9px;border-bottom:1px solid var(--line);white-space:nowrap}
 table.compare th:first-child{text-align:left}
-table.compare td{text-align:right;padding:7px 8px;border-bottom:1px solid #F0EADA;font-family:var(--mono);white-space:nowrap}
+table.compare td{text-align:right;padding:7px 8px;border-bottom:1px solid #EDF1F6;font-family:var(--mono);white-space:nowrap}
 table.compare td:first-child{text-align:left;font-family:var(--sans);color:var(--ink2);font-size:12px}
 table.compare td.k{color:var(--ink3);font-size:12px}
 table.compare tr:last-child td{border-bottom:0}
@@ -217,13 +218,13 @@ table.data{width:100%;min-width:860px;border-collapse:collapse;font-size:13px}
 table.data th{font:600 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);
   text-align:right;padding:8px 10px;border-bottom:1px solid var(--line2);white-space:nowrap}
 table.data th:first-child,table.data td:first-child{text-align:left}
-table.data td{text-align:right;padding:9px 10px;border-bottom:1px solid #F0EADA;font-family:var(--mono);white-space:nowrap}
+table.data td{text-align:right;padding:9px 10px;border-bottom:1px solid #EDF1F6;font-family:var(--mono);white-space:nowrap}
 table.data td:first-child{font-family:var(--sans);white-space:normal;min-width:150px}
 table.data tr:last-child td{border-bottom:0}
 table.data tr.act{background:var(--green-soft)}
 table.data tr.act td:first-child{font-weight:600;color:var(--green-deep)}
 table.data tr.inact td{opacity:.45}
-table.data tr:not(.inact):hover td{background:#FBF8EF}
+table.data tr:not(.inact):hover td{background:#F7FAFC}
 table.data .nm{font-weight:600;font-size:13.5px}
 table.data .sd{display:block;font-size:11px;color:var(--ink3);font-weight:400}
 
@@ -241,13 +242,13 @@ table.data .sd{display:block;font-size:11px;color:var(--ink3);font-weight:400}
 .sched-scroll::-webkit-scrollbar{height:8px;width:8px}
 .sched-scroll::-webkit-scrollbar-thumb{background:var(--line2);border-radius:4px}
 .sched-scroll table{border-collapse:collapse;font-size:12.5px;min-width:780px;width:100%}
-.sched-scroll th{position:sticky;top:0;background:#F3EDDD;font:600 10.5px var(--mono);letter-spacing:.1em;
+.sched-scroll th{position:sticky;top:0;background:#EDF2F7;font:600 10.5px var(--mono);letter-spacing:.1em;
   text-transform:uppercase;color:var(--ink3);text-align:right;padding:8px 12px;border-bottom:1px solid var(--line2);
   z-index:2;white-space:nowrap}
 .sched-scroll th:first-child,.sched-scroll td:first-child{text-align:left}
-.sched-scroll td{text-align:right;padding:6.5px 12px;border-bottom:1px solid #F2ECDC;font-family:var(--mono);
+.sched-scroll td{text-align:right;padding:6.5px 12px;border-bottom:1px solid #EEF2F6;font-family:var(--mono);
   color:var(--ink);white-space:nowrap}
-.sched-scroll tbody tr:hover td{background:#FBF8EF}
+.sched-scroll tbody tr:hover td{background:#F7FAFC}
 .sched-scroll tr.pre td{background:var(--gold-soft)}
 .sched-scroll tr.pre td:first-child{box-shadow:inset 3px 0 0 var(--gold)}
 .sched-scroll tr.end td{background:var(--green-soft);font-weight:600;color:var(--green-deep);border-top:2px solid var(--green)}
@@ -287,7 +288,7 @@ table.data .sd{display:block;font-size:11px;color:var(--ink3);font-weight:400}
         <line x1="10.8" y1="10.8" x2="15.7" y2="15.7"/> <line x1="48.3" y1="48.3" x2="53.2" y2="53.2"/>
         <line x1="53.2" y1="10.8" x2="48.3" y2="15.7"/> <line x1="15.7" y1="48.3" x2="10.8" y2="53.2"/>
       </g>
-      <text x="32" y="43" font-family="Fraunces, Georgia, serif" font-weight="600" font-size="30" fill="#F7F1E1" text-anchor="middle">₹</text>
+      <text x="32" y="43" font-family="Fraunces, Georgia, serif" font-weight="600" font-size="30" fill="#F4F8FC" text-anchor="middle">₹</text>
     </svg>
     <div class="mast-titles">
       <h1 class="mast-title">EMI &amp; Prepayment <em>Studio</em></h1>
@@ -954,8 +955,8 @@ function axes(max, W, H, L, R, T, B){
   let s = '';
   ticks.forEach(v => {
     const y = T + (H - T - B) * (1 - v/max);
-    s += '<line x1="' + L + '" y1="' + y.toFixed(1) + '" x2="' + (W-R) + '" y2="' + y.toFixed(1) + '" stroke="#EFE8D6" stroke-width="1"/>' +
-         '<text x="' + (L-7) + '" y="' + (y+3.5).toFixed(1) + '" text-anchor="end" font-size="10" fill="#8E937F" font-family="Spline Sans Mono, monospace">' + short(v).replace('₹','') + '</text>';
+    s += '<line x1="' + L + '" y1="' + y.toFixed(1) + '" x2="' + (W-R) + '" y2="' + y.toFixed(1) + '" stroke="#E7EDF3" stroke-width="1"/>' +
+         '<text x="' + (L-7) + '" y="' + (y+3.5).toFixed(1) + '" text-anchor="end" font-size="10" fill="#6E8095" font-family="Spline Sans Mono, monospace">' + short(v).replace('₹','') + '</text>';
   });
   return s;
 }
@@ -967,13 +968,13 @@ function xTicksMonths(months, start, W, H, L, R, T, B){
   for (let y = 0; y <= spanYr + 1e-9; y += stepYr){
     const m = Math.round(y*12);
     const x = L + (W-L-R) * (m/months);
-    s += '<line x1="' + x.toFixed(1) + '" y1="' + (H-B) + '" x2="' + x.toFixed(1) + '" y2="' + (H-B+4) + '" stroke="#D6CBB0" stroke-width="1"/>' +
-         '<text x="' + x.toFixed(1) + '" y="' + (H-B+15) + '" text-anchor="middle" font-size="10" fill="#8E937F" font-family="Spline Sans Mono, monospace">' + (start.getFullYear()+y) + '</text>';
+    s += '<line x1="' + x.toFixed(1) + '" y1="' + (H-B) + '" x2="' + x.toFixed(1) + '" y2="' + (H-B+4) + '" stroke="#C3D1DE" stroke-width="1"/>' +
+         '<text x="' + x.toFixed(1) + '" y="' + (H-B+15) + '" text-anchor="middle" font-size="10" fill="#6E8095" font-family="Spline Sans Mono, monospace">' + (start.getFullYear()+y) + '</text>';
   }
   if (Math.round(spanYr*12) % (stepYr*12) !== 0){
     const x = W - R;
-    s += '<line x1="' + x + '" y1="' + (H-B) + '" x2="' + x + '" y2="' + (H-B+4) + '" stroke="#D6CBB0" stroke-width="1"/>' +
-         '<text x="' + x + '" y="' + (H-B+15) + '" text-anchor="end" font-size="10" fill="#8E937F" font-family="Spline Sans Mono, monospace">' + (start.getFullYear()+Math.round(spanYr)) + '</text>';
+    s += '<line x1="' + x + '" y1="' + (H-B) + '" x2="' + x + '" y2="' + (H-B+4) + '" stroke="#C3D1DE" stroke-width="1"/>' +
+         '<text x="' + x + '" y="' + (H-B+15) + '" text-anchor="end" font-size="10" fill="#6E8095" font-family="Spline Sans Mono, monospace">' + (start.getFullYear()+Math.round(spanYr)) + '</text>';
   }
   return s;
 }
@@ -1047,7 +1048,7 @@ function renderLineChart(el, opts){
   if (opts.area) s += '<path d="' + opts.area.d + '" fill="' + opts.area.fill + '" stroke="none"/>';
   (opts.prepayTicks || []).forEach(m => {
     const x = L + (W-L-R) * (m/opts.months);
-    s += '<line x1="' + x.toFixed(1) + '" y1="' + T + '" x2="' + x.toFixed(1) + '" y2="' + (T+5) + '" stroke="#C98A0A" stroke-width="2" opacity=".85"/>';
+    s += '<line x1="' + x.toFixed(1) + '" y1="' + T + '" x2="' + x.toFixed(1) + '" y2="' + (T+5) + '" stroke="#D69A00" stroke-width="2" opacity=".85"/>';
   });
   opts.series.forEach(se => {
     const d = pathOf(se.values, opts.months, W, H, L, R, T, B, opts.yMax);
@@ -1057,9 +1058,9 @@ function renderLineChart(el, opts){
     if (mk.m == null) return;
     const x = L + (W-L-R) * (mk.m/opts.months);
     const y = T + (H-T-B) * (1 - mk.v/opts.yMax);
-    s += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="4" fill="' + mk.color + '" stroke="#FFFDF7" stroke-width="2"/>';
+    s += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="4" fill="' + mk.color + '" stroke="#FFFFFF" stroke-width="2"/>';
     s += '<text x="' + x.toFixed(1) + '" y="' + (y-9).toFixed(1) + '" text-anchor="' + (x > W*0.7 ? 'end' : 'middle') + '" font-size="10.5" font-weight="600" fill="' + mk.color + '" font-family="Spline Sans Mono, monospace"' +
-      ' stroke="#FFFDF7" stroke-width="3.5" paint-order="stroke">' + mk.label + '</text>';
+      ' stroke="#FFFFFF" stroke-width="3.5" paint-order="stroke">' + mk.label + '</text>';
   });
   if (opts.svgExtra) s += opts.svgExtra(g);
   s += '</svg>';
@@ -1100,22 +1101,22 @@ function renderCharts(){
   })();
   renderLineChart(balEl, {
     months:n, start:cfg.start, yMax:cfg.P,
-    grad:{id:'gBal', top:'rgba(23,92,67,.20)', bot:'rgba(23,92,67,.02)'},
+    grad:{id:'gBal', top:'rgba(23,103,158,.22)', bot:'rgba(23,103,158,.02)'},
     area:{d:areaD, fill:'url(#gBal)'},
     prepayTicks: prepayMonths.length <= 60 ? prepayMonths : [],
     series:[
-      {values:balB, color:'#A9A28E', dash:'5 5', w:1.6},
-      {values:balP, color:'#175C43', w:2.4}
+      {values:balB, color:'#9AA7B4', dash:'5 5', w:1.6},
+      {values:balP, color:'#17679E', w:2.4}
     ],
-    marks:[{m:plan.months, v:0, color:'#175C43', label:'closes ' + mLabel(emiDate(cfg.start, plan.months))}],
+    marks:[{m:plan.months, v:0, color:'#17679E', label:'closes ' + mLabel(emiDate(cfg.start, plan.months))}],
     tip: m =>
       '<div class="tt-date">' + mLabel(emiDate(cfg.start, m)) + ' · EMI #' + m + '</div>' +
       '<div class="trow"><span class="k">Balance (plan)</span><span class="v">' + (balP[m] == null ? 'closed' : short(balP[m])) + '</span></div>' +
       '<div class="trow"><span class="k">Balance (base)</span><span class="v">' + short(balB[m]) + '</span></div>'
   });
   wireChart(balEl);
-  $('#lgBal').innerHTML = '<span class="lg-item"><span class="sw" style="background:#175C43"></span>With your plan</span>' +
-    '<span class="lg-item"><span class="sw dash" style="--c:#A9A28E"></span>No prepayment</span>' +
+  $('#lgBal').innerHTML = '<span class="lg-item"><span class="sw" style="background:#17679E"></span>With your plan</span>' +
+    '<span class="lg-item"><span class="sw dash" style="--c:#9AA7B4"></span>No prepayment</span>' +
     (prepayMonths.length ? '<span class="lg-item"><span class="tick"></span>Prepayment months</span>' : '');
   /* ---- cumulative interest chart ---- */
   const intMax = intB[n] || 1;
@@ -1139,11 +1140,11 @@ function renderCharts(){
   const intEl = $('#chInt');
   renderLineChart(intEl, {
     months:n, start:cfg.start, yMax:intMax,
-    grad:{id:'gInt', top:'rgba(23,92,67,.16)', bot:'rgba(23,92,67,.03)'},
+    grad:{id:'gInt', top:'rgba(23,103,158,.16)', bot:'rgba(23,103,158,.03)'},
     area:{d:gapD, fill:'url(#gInt)'},
     series:[
-      {values:intB, color:'#B04828', dash:'5 5', w:1.6},
-      {values:intP, color:'#175C43', w:2.4}
+      {values:intB, color:'#C05621', dash:'5 5', w:1.6},
+      {values:intP, color:'#17679E', w:2.4}
     ],
     marks:[],
     svgExtra: g => {
@@ -1151,7 +1152,7 @@ function renderCharts(){
       const gapM = Math.min(n, Math.round(plan.months * 0.62));
       const x = g.L + (g.W-g.L-g.R) * (gapM/n);
       const y = g.T + (g.H-g.T-g.B) * (1 - (intB[gapM] + intP[gapM])/(2*intMax));
-      return '<text x="' + x.toFixed(1) + '" y="' + (y-8).toFixed(1) + '" text-anchor="middle" font-size="11.5" font-weight="600" fill="#175C43" font-family="Spline Sans Mono, monospace" stroke="#FFFDF7" stroke-width="4" paint-order="stroke">saved ' + short(savedTotal) + '</text>';
+      return '<text x="' + x.toFixed(1) + '" y="' + (y-8).toFixed(1) + '" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0E7C66" font-family="Spline Sans Mono, monospace" stroke="#FFFFFF" stroke-width="4" paint-order="stroke">saved ' + short(savedTotal) + '</text>';
     },
     tip: m =>
       '<div class="tt-date">' + mLabel(emiDate(cfg.start, m)) + ' · EMI #' + m + '</div>' +
@@ -1160,8 +1161,8 @@ function renderCharts(){
       '<div class="trow"><span class="k">Saved so far</span><span class="v" style="color:#E9C76C">' + short(Math.max(0, intB[m] - intP[m])) + '</span></div>'
   });
   wireChart(intEl);
-  $('#lgInt').innerHTML = '<span class="lg-item"><span class="sw" style="background:#175C43"></span>With your plan</span>' +
-    '<span class="lg-item"><span class="sw dash" style="--c:#B04828"></span>No prepayment</span>';
+  $('#lgInt').innerHTML = '<span class="lg-item"><span class="sw" style="background:#17679E"></span>With your plan</span>' +
+    '<span class="lg-item"><span class="sw dash" style="--c:#C05621"></span>No prepayment</span>';
   /* ---- yearly bars chart ---- */
   const yrs = {};
   plan.rows.forEach(r => {
@@ -1188,11 +1189,11 @@ function renderCharts(){
     const h2 = (H-CT-CB) * d.principal/yMaxBar;
     const h3 = (H-CT-CB) * d.extra/yMaxBar;
     const y3 = H-CB, y2 = y3-h3, y1 = y2-h2, y0 = y1-h1;
-    yrS += '<rect x="' + x.toFixed(1) + '" y="' + y0.toFixed(1) + '" width="' + barW.toFixed(1) + '" height="' + Math.max(0,h1).toFixed(1) + '" rx="1.5" fill="#B04828" opacity=".85"/>';
-    yrS += '<rect x="' + x.toFixed(1) + '" y="' + y1.toFixed(1) + '" width="' + barW.toFixed(1) + '" height="' + Math.max(0,h2).toFixed(1) + '" rx="1.5" fill="#175C43"/>';
-    if (h3 > 0.5) yrS += '<rect x="' + x.toFixed(1) + '" y="' + y2.toFixed(1) + '" width="' + barW.toFixed(1) + '" height="' + Math.max(0,h3).toFixed(1) + '" rx="1.5" fill="#C98A0A"/>';
+    yrS += '<rect x="' + x.toFixed(1) + '" y="' + y0.toFixed(1) + '" width="' + barW.toFixed(1) + '" height="' + Math.max(0,h1).toFixed(1) + '" rx="1.5" fill="#C05621" opacity=".85"/>';
+    yrS += '<rect x="' + x.toFixed(1) + '" y="' + y1.toFixed(1) + '" width="' + barW.toFixed(1) + '" height="' + Math.max(0,h2).toFixed(1) + '" rx="1.5" fill="#17679E"/>';
+    if (h3 > 0.5) yrS += '<rect x="' + x.toFixed(1) + '" y="' + y2.toFixed(1) + '" width="' + barW.toFixed(1) + '" height="' + Math.max(0,h3).toFixed(1) + '" rx="1.5" fill="#D69A00"/>';
     if (i % labelEvery === 0 || i === yKeys.length - 1){
-      yrS += '<text x="' + (x + barW/2).toFixed(1) + '" y="' + (H-CB+15) + '" text-anchor="middle" font-size="10" fill="#8E937F" font-family="Spline Sans Mono, monospace">' + (cfg.start.getFullYear() + y - 1) + '</text>';
+      yrS += '<text x="' + (x + barW/2).toFixed(1) + '" y="' + (H-CB+15) + '" text-anchor="middle" font-size="10" fill="#6E8095" font-family="Spline Sans Mono, monospace">' + (cfg.start.getFullYear() + y - 1) + '</text>';
     }
   });
   yrS += '</svg>';
@@ -1207,9 +1208,9 @@ function renderCharts(){
       '<div class="trow"><span class="k">Total paid</span><span class="v">' + short(d.interest + d.principal + d.extra) + '</span></div>';
   }};
   wireChart(yrEl);
-  $('#lgYr').innerHTML = '<span class="lg-item"><span class="sw" style="background:#B04828"></span>Interest</span>' +
-    '<span class="lg-item"><span class="sw" style="background:#175C43"></span>Principal</span>' +
-    '<span class="lg-item"><span class="sw" style="background:#C98A0A"></span>Prepayments</span>';
+  $('#lgYr').innerHTML = '<span class="lg-item"><span class="sw" style="background:#C05621"></span>Interest</span>' +
+    '<span class="lg-item"><span class="sw" style="background:#17679E"></span>Principal</span>' +
+    '<span class="lg-item"><span class="sw" style="background:#D69A00"></span>Prepayments</span>';
 }
 
 /* ================= events ================= */

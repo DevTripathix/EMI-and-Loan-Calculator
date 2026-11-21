@@ -12,7 +12,7 @@
 <style>
 :root{
   --paper:#F2F5F9; --card:#FFFFFF; --line:#DBE3EC; --line2:#C3D1DE;
-  --ink:#0F2033; --ink2:#4E6070; --ink3:#6E8095;
+  --ink:#0F2033; --ink2:#4E6070; --ink3:#0F2033;
   --green:#17679E; --green-deep:#0B2C4D; --green-soft:#E7F0F8;
   --save:#0E7C66;
   --rust:#C05621; --rust-soft:#FBEAE0;
@@ -420,7 +420,7 @@ table.data .sd{display:block;font-size:11px;color:var(--ink3);font-weight:400}
   <section class="content">
 
     <div class="card">
-      <h2 class="card-title"><span class="t">Reading the numbers</span></h2>
+      <h2 class="card-title"><span class="t">EMI &amp; Prepayment details</span></h2>
       <ul class="insights" id="insights"></ul>
     </div>
 
@@ -444,7 +444,7 @@ table.data .sd{display:block;font-size:11px;color:var(--ink3);font-weight:400}
         <div class="legend" id="lgInt"></div>
       </div>
       <div class="card">
-        <h2 class="card-title"><span class="t">Where each year's payment goes</span></h2>
+        <h2 class="card-title"><span class="t">Year on details</span></h2>
         <p class="card-sub">Interest vs EMI principal vs prepayments, year by year.</p>
         <div class="chart-box" id="chYr" aria-label="Yearly payment split chart"></div>
         <div class="legend" id="lgYr"></div>
@@ -459,7 +459,7 @@ table.data .sd{display:block;font-size:11px;color:var(--ink3);font-weight:400}
     </div>
 
     <div class="card">
-      <h2 class="card-title"><span class="t">Amortization schedule</span></h2>
+      <h2 class="card-title"><span class="t">Loans and debt schedule</span></h2>
       <div class="sched-head">
         <div class="seg" id="schedSeg" style="grid-auto-columns:auto;width:auto" role="radiogroup" aria-label="Schedule view">
           <button data-v="yr" class="on">Yearly</button>
@@ -956,7 +956,7 @@ function axes(max, W, H, L, R, T, B){
   ticks.forEach(v => {
     const y = T + (H - T - B) * (1 - v/max);
     s += '<line x1="' + L + '" y1="' + y.toFixed(1) + '" x2="' + (W-R) + '" y2="' + y.toFixed(1) + '" stroke="#E7EDF3" stroke-width="1"/>' +
-         '<text x="' + (L-7) + '" y="' + (y+3.5).toFixed(1) + '" text-anchor="end" font-size="10" fill="#6E8095" font-family="Spline Sans Mono, monospace">' + short(v).replace('₹','') + '</text>';
+         '<text x="' + (L-7) + '" y="' + (y+3.5).toFixed(1) + '" text-anchor="end" font-size="10" fill="#0F2033" font-family="Spline Sans Mono, monospace">' + short(v).replace('₹','') + '</text>';
   });
   return s;
 }
@@ -969,12 +969,12 @@ function xTicksMonths(months, start, W, H, L, R, T, B){
     const m = Math.round(y*12);
     const x = L + (W-L-R) * (m/months);
     s += '<line x1="' + x.toFixed(1) + '" y1="' + (H-B) + '" x2="' + x.toFixed(1) + '" y2="' + (H-B+4) + '" stroke="#C3D1DE" stroke-width="1"/>' +
-         '<text x="' + x.toFixed(1) + '" y="' + (H-B+15) + '" text-anchor="middle" font-size="10" fill="#6E8095" font-family="Spline Sans Mono, monospace">' + (start.getFullYear()+y) + '</text>';
+         '<text x="' + x.toFixed(1) + '" y="' + (H-B+15) + '" text-anchor="middle" font-size="10" fill="#0F2033" font-family="Spline Sans Mono, monospace">' + (start.getFullYear()+y) + '</text>';
   }
   if (Math.round(spanYr*12) % (stepYr*12) !== 0){
     const x = W - R;
     s += '<line x1="' + x + '" y1="' + (H-B) + '" x2="' + x + '" y2="' + (H-B+4) + '" stroke="#C3D1DE" stroke-width="1"/>' +
-         '<text x="' + x + '" y="' + (H-B+15) + '" text-anchor="end" font-size="10" fill="#6E8095" font-family="Spline Sans Mono, monospace">' + (start.getFullYear()+Math.round(spanYr)) + '</text>';
+         '<text x="' + x + '" y="' + (H-B+15) + '" text-anchor="end" font-size="10" fill="#0F2033" font-family="Spline Sans Mono, monospace">' + (start.getFullYear()+Math.round(spanYr)) + '</text>';
   }
   return s;
 }
@@ -1073,51 +1073,61 @@ function renderCharts(){
   if (!S) return;
   const {cfg, base, plan} = S;
   const n = cfg.months;
-  const balB = [], balP = [], intB = [], intP = [];
+  const intB = [], intP = [];
   let ciB = 0, ciP = 0;
-  balB[0] = cfg.P; balP[0] = cfg.P; intB[0] = 0; intP[0] = 0;
+  intB[0] = 0; intP[0] = 0;
   const bmap = new Map(base.rows.map(r => [r.m, r]));
   const pmap = new Map(plan.rows.map(r => [r.m, r]));
   for (let m = 1; m <= n; m++){
     const b = bmap.get(m), p = pmap.get(m);
-    if (b){ ciB += b.interest; balB[m] = b.balance; } else { balB[m] = balB[m-1]; }
+    if (b) ciB += b.interest;
     intB[m] = ciB;
-    if (p){ ciP += p.interest; balP[m] = p.balance; } else { balP[m] = null; }
+    if (p) ciP += p.interest;
     intP[m] = ciP;
   }
-  const prepayMonths = plan.rows.filter(r => r.extra > 0).map(r => r.m);
-  /* ---- balance chart ---- */
+  /* ---- outstanding balance: year-end bars, plan vs base ---- */
   const balEl = $('#chBal');
-  let areaD = '';
-  (function(){
-    const {W, H} = sizeOf(balEl);
-    const L = leftPad(cfg.P), R = 14, T = 16, B = 30;
-    for (let m = 0; m <= plan.months; m++){
-      const x = L + (W-L-R) * (m/n);
-      const y = T + (H-T-B) * (1 - balP[m]/cfg.P);
-      areaD += (m === 0 ? 'M' : 'L') + x.toFixed(1) + ' ' + y.toFixed(1);
-    }
-    areaD += ' L' + (L + (W-L-R)*(plan.months/n)).toFixed(1) + ' ' + (H-B) + ' L' + L + ' ' + (H-B) + ' Z';
-  })();
-  renderLineChart(balEl, {
-    months:n, start:cfg.start, yMax:cfg.P,
-    grad:{id:'gBal', top:'rgba(23,103,158,.22)', bot:'rgba(23,103,158,.02)'},
-    area:{d:areaD, fill:'url(#gBal)'},
-    prepayTicks: prepayMonths.length <= 60 ? prepayMonths : [],
-    series:[
-      {values:balB, color:'#9AA7B4', dash:'5 5', w:1.6},
-      {values:balP, color:'#17679E', w:2.4}
-    ],
-    marks:[{m:plan.months, v:0, color:'#17679E', label:'closes ' + mLabel(emiDate(cfg.start, plan.months))}],
-    tip: m =>
-      '<div class="tt-date">' + mLabel(emiDate(cfg.start, m)) + ' · EMI #' + m + '</div>' +
-      '<div class="trow"><span class="k">Balance (plan)</span><span class="v">' + (balP[m] == null ? 'closed' : short(balP[m])) + '</span></div>' +
-      '<div class="trow"><span class="k">Balance (base)</span><span class="v">' + short(balB[m]) + '</span></div>'
-  });
-  wireChart(balEl);
-  $('#lgBal').innerHTML = '<span class="lg-item"><span class="sw" style="background:#17679E"></span>With your plan</span>' +
-    '<span class="lg-item"><span class="sw dash" style="--c:#9AA7B4"></span>No prepayment</span>' +
-    (prepayMonths.length ? '<span class="lg-item"><span class="tick"></span>Prepayment months</span>' : '');
+  const planEnd = {}, baseEnd = {};
+  plan.rows.forEach(r => { planEnd[Math.ceil(r.m/12)] = r.balance; });
+  base.rows.forEach(r => { baseEnd[Math.ceil(r.m/12)] = r.balance; });
+  const balYears = Object.keys(baseEnd).map(Number).sort((a,b) => a-b);
+  if (!balYears.length){ balEl.innerHTML = ''; balEl._chart = null; }
+  else {
+    const {W: BW, H: BH} = sizeOf(balEl);
+    const BL = leftPad(cfg.P), BR = 14, BT = 16, BB = 30;
+    const bp = BW - BL - BR;
+    const bgw = bp / balYears.length;
+    const barw = clamp(bgw * 0.34, 2, 22);
+    const blabEvery = Math.max(1, Math.ceil(balYears.length / Math.max(3, Math.floor(bp / 58))));
+    let balS = '<svg viewBox="0 0 ' + BW + ' ' + BH + '" preserveAspectRatio="xMidYMid meet" role="img">';
+    balS += axes(cfg.P, BW, BH, BL, BR, BT, BB);
+    balYears.forEach((y, i) => {
+      const pv = planEnd[y] || 0;
+      const bv = baseEnd[y] || 0;
+      const gx = BL + i*bgw;
+      const hp = (BH-BT-BB) * pv/cfg.P;
+      const hb = (BH-BT-BB) * bv/cfg.P;
+      if (hb > 0.4) balS += '<rect x="' + (gx + bgw*0.52).toFixed(1) + '" y="' + (BH-BB-hb).toFixed(1) + '" width="' + barw.toFixed(1) + '" height="' + hb.toFixed(1) + '" rx="1.5" fill="#CBD6E1"/>';
+      if (hp > 0.4) balS += '<rect x="' + (gx + bgw*0.52 - barw - 1).toFixed(1) + '" y="' + (BH-BB-hp).toFixed(1) + '" width="' + barw.toFixed(1) + '" height="' + hp.toFixed(1) + '" rx="1.5" fill="#17679E"/>';
+      if (i % blabEvery === 0 || i === balYears.length - 1){
+        balS += '<text x="' + (gx + bgw/2).toFixed(1) + '" y="' + (BH-BB+15) + '" text-anchor="middle" font-size="10" fill="#0F2033" font-family="Spline Sans Mono, monospace">' + (cfg.start.getFullYear() + y - 1) + '</text>';
+      }
+    });
+    balS += '</svg>';
+    balEl.innerHTML = '<div class="tt"></div>' + balS;
+    balEl._chart = {bars:true, W:BW, CL:BL, bw:bgw, count:balYears.length, tip: i => {
+      const y = balYears[i];
+      const pv = planEnd[y] || 0, bv = baseEnd[y] || 0;
+      const mEnd = Math.min(y*12, n);
+      return '<div class="tt-date">Year ' + y + ' · ' + mLabel(emiDate(cfg.start, (y-1)*12+1)) + ' – ' + mLabel(emiDate(cfg.start, mEnd)) + '</div>' +
+        '<div class="trow"><span class="k">Balance (plan)</span><span class="v">' + (pv <= 0.5 ? 'closed' : short(pv)) + '</span></div>' +
+        '<div class="trow"><span class="k">Balance (base)</span><span class="v">' + short(bv) + '</span></div>' +
+        '<div class="trow"><span class="k">Ahead by</span><span class="v" style="color:#E9C76C">' + short(Math.max(0, bv - pv)) + '</span></div>';
+    }};
+    wireChart(balEl);
+    $('#lgBal').innerHTML = '<span class="lg-item"><span class="sw" style="background:#17679E"></span>Year-end balance (plan)</span>' +
+      '<span class="lg-item"><span class="sw" style="background:#CBD6E1"></span>No prepayment</span>';
+  }
   /* ---- cumulative interest chart ---- */
   const intMax = intB[n] || 1;
   const savedTotal = base.totInt - plan.totInt;
@@ -1193,7 +1203,7 @@ function renderCharts(){
     yrS += '<rect x="' + x.toFixed(1) + '" y="' + y1.toFixed(1) + '" width="' + barW.toFixed(1) + '" height="' + Math.max(0,h2).toFixed(1) + '" rx="1.5" fill="#17679E"/>';
     if (h3 > 0.5) yrS += '<rect x="' + x.toFixed(1) + '" y="' + y2.toFixed(1) + '" width="' + barW.toFixed(1) + '" height="' + Math.max(0,h3).toFixed(1) + '" rx="1.5" fill="#D69A00"/>';
     if (i % labelEvery === 0 || i === yKeys.length - 1){
-      yrS += '<text x="' + (x + barW/2).toFixed(1) + '" y="' + (H-CB+15) + '" text-anchor="middle" font-size="10" fill="#6E8095" font-family="Spline Sans Mono, monospace">' + (cfg.start.getFullYear() + y - 1) + '</text>';
+      yrS += '<text x="' + (x + barW/2).toFixed(1) + '" y="' + (H-CB+15) + '" text-anchor="middle" font-size="10" fill="#0F2033" font-family="Spline Sans Mono, monospace">' + (cfg.start.getFullYear() + y - 1) + '</text>';
     }
   });
   yrS += '</svg>';

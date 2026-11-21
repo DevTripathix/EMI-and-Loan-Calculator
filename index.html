@@ -418,18 +418,21 @@ table.data .sd{display:block;font-size:11px;color:var(--ink3);font-weight:400}
   <!-- ============ MAIN ============ -->
   <section class="content">
 
-    <div class="grid2">
-      <div class="card">
-        <h2 class="card-title"><span class="t">Outstanding balance</span></h2>
-        <p class="card-sub">How fast the principal falls — with vs without your plan.</p>
-        <div class="chart-box" id="chBal" aria-label="Outstanding balance chart"></div>
-        <div class="legend" id="lgBal"></div>
-      </div>
-      <div class="card">
-        <h2 class="card-title"><span class="t">Reduce term vs reduce EMI</span></h2>
-        <p class="card-sub">Same plan, the two ways a lender can apply prepayments.</p>
-        <div class="tbl-wrap" id="rtre"></div>
-      </div>
+    <div class="card">
+      <h2 class="card-title"><span class="t">Reading the numbers</span></h2>
+      <ul class="insights" id="insights"></ul>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title"><span class="t">Reduce term vs reduce EMI</span></h2>
+      <p class="card-sub">Same plan, the two ways a lender can apply prepayments.</p>
+      <div class="tbl-wrap" id="rtre"></div>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title"><span class="t">Scenario lab</span></h2>
+      <p class="card-sub" id="scenSub">Each strategy on its own vs everything combined — click Apply to load one.</p>
+      <div class="tbl-wrap"><table class="data" id="scenTbl"></table></div>
     </div>
 
     <div class="grid2 eq">
@@ -448,14 +451,10 @@ table.data .sd{display:block;font-size:11px;color:var(--ink3);font-weight:400}
     </div>
 
     <div class="card">
-      <h2 class="card-title"><span class="t">Scenario lab</span></h2>
-      <p class="card-sub" id="scenSub">Each strategy on its own vs everything combined — click Apply to load one.</p>
-      <div class="tbl-wrap"><table class="data" id="scenTbl"></table></div>
-    </div>
-
-    <div class="card">
-      <h2 class="card-title"><span class="t">Reading the numbers</span></h2>
-      <ul class="insights" id="insights"></ul>
+      <h2 class="card-title"><span class="t">Outstanding balance</span></h2>
+      <p class="card-sub">How fast the principal falls — with vs without your plan.</p>
+      <div class="chart-box" id="chBal" aria-label="Outstanding balance chart"></div>
+      <div class="legend" id="lgBal"></div>
     </div>
 
     <div class="card">

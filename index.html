@@ -115,6 +115,9 @@ input[type=range]::-moz-range-progress{height:3px;border-radius:2px;background:v
 input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--green);border:3px solid var(--cream);box-shadow:0 1px 4px rgba(0,0,0,.3);cursor:grab}
 .f-sub{display:flex;justify-content:space-between;align-items:baseline;margin-top:3px;font-size:12px;color:var(--ink2);gap:8px}
 .f-sub .num{color:var(--ink3);font-size:11.5px;text-align:right}
+.f-words{display:flex;gap:8px;align-items:baseline;margin-top:5px;flex-wrap:wrap}
+.f-words .k{font:600 9.5px/1.6 var(--mono);letter-spacing:.11em;text-transform:uppercase;color:var(--ink3);flex:0 0 auto}
+.f-words .v{font:600 13.5px/1.35 var(--serif);color:var(--ink)}
 .amount-box{display:flex;align-items:center;border:1px solid var(--line2);border-radius:7px;background:#FFFFFF;transition:border-color .15s, box-shadow .15s}
 .amount-box .pfx{flex:0 0 auto;padding-left:11px;color:var(--ink3);font:500 14px var(--mono);pointer-events:none}
 .amount-box input[type=number]{width:auto;flex:1 1 0;min-width:0;border:0;background:transparent;box-shadow:none;padding:8px 11px 8px 6px}
@@ -332,6 +335,7 @@ table.data .sd{display:block;font-size:11px;color:var(--ink3);font-weight:400}
         <div class="amount-box"><span class="pfx">₹</span><input type="number" id="P" inputmode="numeric" step="50000"></div>
         <input type="range" id="Pr" min="500000" max="20000000" step="50000" aria-label="Loan amount slider">
         <div class="f-sub"><span id="Psub">—</span></div>
+        <div class="f-words"><span class="k">In words</span><span class="v" id="Pwords">—</span></div>
         <div class="chips" id="Pchips">
           <button class="chip" data-v="5000000">50 L</button>
           <button class="chip" data-v="7500000">75 L</button>
@@ -533,6 +537,32 @@ function fmtDur(m){
   if (y) return y + 'y';
   return mo + 'm';
 }
+const W_ONES = ['','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
+const W_TENS = ['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+function w2(n){ return n < 20 ? W_ONES[n] : W_TENS[Math.floor(n/10)] + (n % 10 ? '-' + W_ONES[n % 10] : ''); }
+function w3(n){
+  const h = Math.floor(n/100), r = n % 100;
+  let s = h ? W_ONES[h] + ' hundred' : '';
+  if (r) s += (s ? ' ' : '') + w2(r);
+  return s;
+}
+/* Indian numbering: crore / lakh / thousand */
+function inWords(num){
+  const n = Math.round(Math.abs(num));
+  if (!n) return 'zero';
+  const cr = Math.floor(n / 1e7), lk = Math.floor((n % 1e7) / 1e5),
+        th = Math.floor((n % 1e5) / 1e3), rest = n % 1e3;
+  const parts = [];
+  if (cr) parts.push(inWords(cr) + ' crore');
+  if (lk) parts.push(w2(lk) + ' lakh');
+  if (th) parts.push(w2(th) + ' thousand');
+  if (rest) parts.push(w3(rest));
+  return parts.join(' ');
+}
+function amountInWords(num){
+  const s = inWords(num);
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 /* ================= engine ================= */
@@ -715,6 +745,7 @@ function renderAll(){
   syncSliders(cfg);
   syncStepFields();
   $('#Psub').textContent = short(cfg.P) + ' · ' + fmtINR.format(Math.round(cfg.P));
+  $('#Pwords').textContent = amountInWords(cfg.P) + (Math.round(cfg.P) === 1 ? ' rupee' : ' rupees');
   $('#rateSub').textContent = (cfg.rate/12).toFixed(2) + '% per month';
   $('#yearsSub').textContent = fmtINR.format(cfg.months) + ' EMIs';
   renderLumpHints();
